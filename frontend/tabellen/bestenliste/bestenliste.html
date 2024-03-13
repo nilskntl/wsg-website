@@ -1,0 +1,268 @@
+<!-- Autor: Nils Knittel -->
+<!-- Beschreibung: HTML-Datei für die Anzeige der Bestenliste -->
+<!-- Die Tabelle wird dynamisch durch JavaScript erstellt und aus dem LocalStorage importiert -->
+<!-- Die Daten werden vorher aus Google Sheets importiert und im LocalStorage gespeichert -->
+<body>
+<style>
+    /*
+        * Abwechselnde Farben für gerade und ungerade Zeilen
+        * Farbe für gerade Zeilen: #d1e5ef
+        * Farbe für ungerade Zeilen: #bbd5ea
+     */
+
+    /* Schriftart für den gesamten Body */
+    body {
+        font-family: "Questrial", sans-serif;
+    }
+
+    /* Allgemeine Formatierungen für die Tabelle */
+    table {
+        line-height: 1.0; /* Zeilenhöhe */
+        width: 100%; /* Breite */
+        table-layout: fixed; /* Kein scrollen nach links und rechts */
+        border-collapse: collapse; /* Verschmilzt Zellgrenzen / Konsistentes Erscheinungsbild */
+    }
+
+    /* Allgemeine Formatierungen für Zellen */
+    table,
+    th,
+    td {
+        white-space: nowrap; /* Kein Zellenumbruch */
+        overflow: hidden; /* Overflow verstecken */
+        height: 25px; /* Standardhöhe für Zellen */
+        font-size: 15px; /* Standardtextgröße für Zellen */
+        border: 1px solid white; /* Rahmeneinstellungen */
+        color: #2e2727; /* Textfarbe */
+        text-align: center; /* Textausrichtung */
+    }
+
+    /* Definition der Breiten der Spalten */
+    .col1 {
+        width: 10%;
+    }
+
+    .col2 {
+        width: 32%;
+    }
+
+    .col3 {
+        width: 14%;
+    }
+
+    .col4 {
+        width: 10%;
+    }
+
+    .col5 {
+        width: 22%;
+    }
+
+    .col6 {
+        width: 12%;
+    }
+
+    /* Formatierungen für die Kopfzeile */
+    thead th {
+        font-weight: bold; /* Fettschrift für die Kopfzeile */
+        height: 41px; /* Höhe der Kopfzeile */
+        font-size: 15px; /* Schriftgröße */
+        background-color: #252626; /* Hintergrundfarbe */
+        color: white; /* Textfarbe */
+    }
+
+    /* Einstellungen für gerade/ungerade Zeilen */
+    /* Gerade Zeilen */
+    tr:nth-child(even) {
+        background-color: #d1e5ef; /* Hintergrundfarbe für gerade Zeilen */
+    }
+
+    /* Ungerade Zeilen */
+    tr:nth-child(odd) {
+        background-color: #bbd5ea; /* Hintergrundfarbe für ungerade Zeilen */
+    }
+
+    /* Formatierungen für bestimmte Zeilen */
+    /* Reihe 2 */
+    td:nth-child(2) {
+        text-align: left; /* Text links ausgerichtet */
+        padding-left: 8px; /* Text um 8px nach rechts verschoben */
+    }
+
+    /* Zeilen mit Streckenangaben */
+    tr:nth-child(1) td:nth-child(1),
+    tr:nth-child(14) td:nth-child(1),
+    tr:nth-child(27) td:nth-child(1),
+    tr:nth-child(40) td:nth-child(1),
+    tr:nth-child(53) td:nth-child(1),
+    tr:nth-child(66) td:nth-child(1) {
+        font-weight: bold; /* Fettschrift für diese Zeilen */
+        height: 31px; /* Höhe dieser Zeilen */
+        background-color: #25476a; /* Hintergrundfarbe */
+        color: white; /* Textfarbe */
+        /* Media Query für Mobilgeräte */
+        @media only screen and (max-width: 600px) {
+            height: 23px; /* Höhe auf dem Handy */
+        }
+    }
+
+    /* Zeilen mit Lang/Kurzbahn */
+    tr:nth-child(2) td:nth-child(1),
+    tr:nth-child(8) td:nth-child(1),
+    tr:nth-child(15) td:nth-child(1),
+    tr:nth-child(21) td:nth-child(1),
+    tr:nth-child(28) td:nth-child(1),
+    tr:nth-child(34) td:nth-child(1),
+    tr:nth-child(41) td:nth-child(1),
+    tr:nth-child(47) td:nth-child(1),
+    tr:nth-child(54) td:nth-child(1),
+    tr:nth-child(60) td:nth-child(1),
+    tr:nth-child(67) td:nth-child(1),
+    tr:nth-child(73) td:nth-child(1) {
+        font-weight: bold; /* Fettschrift für diese Zeilen */
+        background-color: #6992b4; /* Hintergrundfarbe */
+        color: white; /* Textfarbe */
+    }
+
+    /* Extra Einstellungen für Handy*/
+    @media only screen and (max-width: 600px) {
+        thead th {
+            height: 30px; /* Höhe der Kopfzeile auf Mobilgeräten */
+            font-size: 8px; /* Schriftgröße für die Kopfzeile auf Mobilgeräten */
+        }
+
+        th,
+        td {
+            height: 18px; /* Standardhöhe der Zeilen auf Mobilgeräten */
+            font-size: 8px; /* Schriftgröße für den Rest der Tabelle auf Mobilgeräten */
+        }
+    }
+</style>
+<!-- Die eigentliche Tabelle -->
+<table border="1" style="width: 100%;">
+    <!-- Kopfzeile -->
+    <thead>
+    <tr>
+        <th class="col1">Platz</th>
+        <!-- Reihe 1 -->
+        <th class="col2">Name</th>
+        <!-- Reihe 2 -->
+        <th class="col3">Zeit</th>
+        <!-- Reihe 3 -->
+        <th class="col4">Jg.</th>
+        <!-- Reihe 4 -->
+        <th class="col5">Ort</th>
+        <!-- Reihe 5 -->
+        <th class="col6">Jahr</th>
+        <!-- Reihe 6 -->
+    </tr>
+    </thead>
+    <!-- Der Körper der Tabelle, der dynamisch durch JavaScript erstellt wird -->
+    <tbody id="table-body"></tbody>
+</table>
+<!-- Skript zum Importieren von Daten aus Google Sheets -->
+<script>
+    function updateTableFromLocalStorage(data) {
+        /**
+         * Funktion zum Aktualisieren der Tabelle aus dem LocalStorage
+         * die Funktion wird aufgerufen, nachdem die Tabelle erstellt wurde
+         * die Funktion liest die Daten aus dem LocalStorage und erstellt die Tabelle
+         */
+
+        if (data) {
+            let rows = data.split("\n");
+            let tableBody = document.getElementById("table-body");
+
+            // Inhalt löschen
+            tableBody.innerHTML = '';
+
+            // Durchlaufe alle Zeilen und erstelle die Zellen
+            for (let i = 0; i < rows.length; i++) {
+                let cells = rows[i].split("\t");
+                let row = document.createElement("tr");
+
+                for (let j = 0; j < cells.length; j++) {
+                    let cell = document.createElement("td");
+                    cell.textContent = cells[j];
+                    row.appendChild(cell);
+                }
+                tableBody.appendChild(row);
+            }
+
+            // Bestimmte Zeilen zusammenführen (Strecken, Kurzbahn/Langbahn)
+            mergeCells(rows.length);
+        } else {
+            console.error("Daten im LocalStorage nicht gefunden.");
+        }
+    }
+
+    function mergeCells(number) {
+        /**
+         * Funktion zum Zusammenführen bestimmter Zellen in der Tabelle
+         * die Funktion wird aufgerufen, nachdem die Tabelle erstellt wurde
+         * die Funktion führt die Zellen in den angegebenen Zeilen und Spalten zusammen
+         */
+
+        let table = document.querySelector("table");
+        let mergeRows = [1, 2, 8, 14, 15, 21, 27, 28, 34, 40, 41, 47, 53, 54, 60, 66, 67, 73]; // Zu mergende Zeilen
+        let mergeColumns = [0, 5]; // Zu mergende Spalten ("von bis" Spalte)
+
+        for (let i = 0; i < mergeRows.length && mergeRows[i] < number; i++) {
+            let row = table.rows[mergeRows[i]];
+
+            for (let j = 0; j < mergeColumns.length; j++) {
+                let cell = row.cells[mergeColumns[j]];
+
+                if (j === 0) {
+                    cell.colSpan = 6; // Wenn es die erste Spalte ist, erstrecke sie über 6 Spalten
+                } else {
+                    cell.style.display = "none"; // Verstecke die zweite Spalte
+                }
+            }
+        }
+    }
+
+    function waitForDataAndLoad() {
+        /**
+         * Funktion zum Überwachen des LocalStorage auf neue Daten und Aktualisieren der Tabelle,
+         * sobald neue Daten im LocalStorage gefunden werden, wird die Tabelle aktualisiert
+         */
+
+            // Name der Daten im LocalStorage. Der Name muss mit dem Namen im LocalStorage übereinstimmen
+            // Name convention: disziplinGeschlecht
+        let name = "freistilWeiblich";
+
+        // Überwachungsintervall in Millisekunden
+        let interval = 100;
+        let data = localStorage.getItem(name);
+
+        // Überprüfen, ob die Daten im LocalStorage verfügbar sind
+        let waitForData = setInterval(function () {
+            data = localStorage.getItem(name);
+            if (data) {
+                // Daten im LocalStorage gefunden, also stoppe die Überwachung und lade die Tabelle
+                clearInterval(waitForData);
+                updateTableFromLocalStorage(data);
+            }
+        }, interval);
+
+        // Aktualisierungsintervall für die regelmäßige Überprüfung des LocalStorage und Aktualisierung der Tabelle
+        interval = 2000;
+        setInterval(function () {
+            if (data !== localStorage.getItem(name)) {
+                console.log("Neue Daten gefunden.");
+                data = localStorage.getItem(name);
+                updateTableFromLocalStorage(data);
+            }
+        }, interval);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        /**
+         * Funktion zum Warten auf das DOMContentLoaded-Ereignis, um sicherzustellen, dass das Dokument vollständig geladen ist, bevor Funktionen ausgeführt werden,
+         * sobald das DOM vollständig geladen ist, wird die Funktion waitForDataAndLoad aufgerufen
+         */
+        // Daten im LocalStorage überwachen und dann updateTableFromLocalStorage aufrufen
+        waitForDataAndLoad();
+    });
+</script>
+</body>

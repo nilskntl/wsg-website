@@ -1,0 +1,58 @@
+<!-- Autor: Nils Knittel -->
+<!-- Beschreibung: HTML-Datei für den Download der Saisonbestenliste -->
+<!-- Die Daten werden aus Google Sheets importiert und im LocalStorage gespeichert -->
+<script>
+
+    function fetchDataAndSaveToLocalStorage(tsvUrl, range, storageKey) {
+        /**
+         * Lade die Daten von der angegebenen TSV-URL und speichere sie im LocalStorage.
+         * @param {string} tsvUrl - Die URL des TSV-Dokuments
+         * @param {string} range - Der Bereich des TSV-Dokuments, der geladen werden soll
+         * @param {string} storageKey - Der Schlüssel, unter dem die Daten im LocalStorage gespeichert werden
+         */
+        return fetch(tsvUrl + '&range=' + range)
+            .then(response => response.text())
+            .then(data => {
+                localStorage.setItem(storageKey, data);
+            })
+            .catch(error => console.error('Fehler beim Laden der TSV-Daten:', error));
+    }
+
+    function saveDataToLocalStorage() {
+        /**
+         * Lade die Daten von der Google Sheet TSV-URL und speichere sie im LocalStorage.
+         * Die Daten werden in verschiedenen Bereichen des TSV-Dokuments gespeichert.
+         * Die Bereiche und die zugehörigen Schlüssel im LocalStorage sind in der dataMappings-Liste definiert.
+         */
+
+            // Derzeit: Saison 2023/24
+        let tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQdpuZrkA_RymgbYnDiwAqTT3cG4OhB25idXiP552L6cIixUwRpC3l43pptALK0Wgmiyc3tiV8AwlKL/pub?gid=0&single=true&output=tsv';
+
+        let dataMappings = [
+            {range: 'A4:F81', key: 'freistilWeiblich'},
+            {range: 'G4:L81', key: 'freistilMaennlich'},
+            {range: 'N4:S42', key: 'schmetterlingWeiblich'},
+            {range: 'T4:Y42', key: 'schmetterlingMaennlich'},
+            {range: 'N47:S85', key: 'rueckenWeiblich'},
+            {range: 'T47:Y85', key: 'rueckenMaennlich'},
+            {range: 'N90:S123', key: 'lagenWeiblich'},
+            {range: 'T90:Y123', key: 'lagenMaennlich'},
+            {range: 'A86:F124', key: 'brustWeiblich'},
+            {range: 'G86:L124', key: 'brustMaennlich'}
+        ];
+
+        let fetchPromises = dataMappings.map(mapping =>
+            fetchDataAndSaveToLocalStorage(tsvUrl, mapping.range, mapping.key)
+        );
+
+        // Warten Sie, bis alle Fetch-Anforderungen abgeschlossen sind, bevor Sie fortfahren
+        Promise.all(fetchPromises)
+            .then(() => {
+                console.log('Alle Daten erfolgreich geladen und im LocalStorage gespeichert.');
+            })
+            .catch(error => console.error('Fehler beim Laden und Speichern der TSV-Daten:', error));
+    }
+
+    saveDataToLocalStorage();
+
+</script>

@@ -1,0 +1,59 @@
+<!-- Autor: Nils Knittel -->
+<!-- Beschreibung: HTML-Datei für den Download der Kalenderdaten -->
+<!-- Die Daten werden aus Google Sheets importiert und im LocalStorage gespeichert -->
+<script>
+
+    function fetchDataAndSaveToLocalStorage(tsvUrl, storageKey) {
+        /**
+         * Lade die Daten von der angegebenen TSV-URL und speichere sie im LocalStorage.
+         * @param {string} tsvUrl - Die URL des TSV-Dokuments
+         * @param {string} storageKey - Der Schlüssel, unter dem die Daten im LocalStorage gespeichert werden
+         */
+        return fetch(tsvUrl + '&range=A1:G')
+            .then(response => response.text())
+            .then(data => {
+                localStorage.setItem(storageKey, data);
+            })
+            .catch(error => console.error('Fehler beim Laden der TSV-Daten:', error));
+    }
+
+    function saveDataToLocalStorage() {
+        /**
+         * Lade die Daten von der Google Sheet TSV-URL und speichere sie im LocalStorage.
+         * @type {[{tsvUrl: string, key: string},{tsvUrl: string, key: string},{tsvUrl: string, key: string},{tsvUrl: string, key: string}]}
+         */
+
+        let dataMappings = [
+            {
+                key: 'kalender2024',
+                tsvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTko-SABhF-PwUsGO3lzwjgEAOa7ASL6U7ceLcwigyZgxdJts1IXZc4jFeShcTa-1LCchr7xnbledz6/pub?gid=0&single=true&output=tsv'
+            },
+            {
+                key: 'kalender2023',
+                tsvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTko-SABhF-PwUsGO3lzwjgEAOa7ASL6U7ceLcwigyZgxdJts1IXZc4jFeShcTa-1LCchr7xnbledz6/pub?gid=1581134273&single=true&output=tsv'
+            },
+            {
+                key: 'kalender2022',
+                tsvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTko-SABhF-PwUsGO3lzwjgEAOa7ASL6U7ceLcwigyZgxdJts1IXZc4jFeShcTa-1LCchr7xnbledz6/pub?gid=116089032&single=true&output=tsv'
+            },
+            {
+                key: 'kalender2021',
+                tsvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTko-SABhF-PwUsGO3lzwjgEAOa7ASL6U7ceLcwigyZgxdJts1IXZc4jFeShcTa-1LCchr7xnbledz6/pub?gid=246777137&single=true&output=tsv'
+            },
+        ];
+
+        let fetchPromises = dataMappings.map(mapping =>
+            fetchDataAndSaveToLocalStorage(mapping.tsvUrl, mapping.key)
+        );
+
+        // Warten Sie, bis alle Fetch-Anforderungen abgeschlossen sind, bevor Sie fortfahren
+        Promise.all(fetchPromises)
+            .then(() => {
+                console.log('Alle Daten erfolgreich geladen und im LocalStorage gespeichert.');
+            })
+            .catch(error => console.error('Fehler beim Laden und Speichern der TSV-Daten:', error));
+    }
+
+    saveDataToLocalStorage();
+
+</script>

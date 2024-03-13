@@ -1,0 +1,116 @@
+<!-- Autor: Nils Knittel -->
+<!-- Beschreibung: HTML-Datei für die Anzeige der neuesten Downloads -->
+<!-- Die Tabelle wird dynamisch durch JavaScript erstellt und aus dem LocalStorage importiert -->
+<!-- Die Daten werden vorher aus Google Sheets importiert und im LocalStorage gespeichert -->
+<body>
+<style>
+
+    /* Schriftart für den gesamten Body */
+    body {
+        font-family: "Questrial", sans-serif;
+    }
+
+    /* Stil für nicht besuchte Links */
+    a {
+        color: #0c608d;
+    }
+
+    /* Stil für besuchte Links */
+    a:visited {
+        color: #0c608d;
+    }
+</style>
+
+<!-- Container für die Tabelle -->
+<div id="download-list"></div>
+
+<script>
+
+    function parseAndDisplayData(data) {
+        /**
+         * Daten aus dem LocalStorage parsen und anzeigen
+         */
+
+            // Daten in Zeilen aufteilen
+        let rows = data.split('\n');
+
+        // HTML-Element, in dem die Daten angezeigt werden sollen
+        let contentElement = document.getElementById('download-list');
+
+        // Content löschen
+        contentElement.innerHTML = '';
+
+        // Durch jede Zeile des Sheets iterieren
+        rows.forEach(function (row) {
+            // Daten in Spalten aufteilen (Tab-separierte Werte)
+            let columns = row.split('\t');
+
+            // Text aus Spalte A (Index 0) extrahieren
+            let text = columns[0];
+
+            // Hyperlink aus Spalte B (Index 1) extrahieren
+            let hyperlink = columns[1];
+
+            // Wenn sowohl Text als auch Hyperlink vorhanden sind
+            if (text && hyperlink) {
+                // Absatz erstellen
+                let paragraph = document.createElement('p');
+
+                // Hyperlink erstellen und einfügen
+                let link = document.createElement('a');
+                link.href = hyperlink;
+                link.textContent = text;
+                link.target = "_blank"; // In neuem Tab öffnen
+                link.rel = "noopener noreferrer";
+                paragraph.appendChild(link);
+
+                // Absatz zum HTML-Element hinzufügen
+                contentElement.appendChild(paragraph);
+            }
+        });
+    }
+
+    function waitForDataAndLoad() {
+        /**
+         * Überwacht den LocalStorage auf neue Daten und lädt die Tabelle, wenn neue Daten gefunden werden
+         * Überwachungsintervall: 100ms
+         */
+
+            // Name der Daten im LocalStorage
+        let name = 'downloadList';
+
+        // Überwachungsintervall in Millisekunden
+        let interval = 100;
+        let data = localStorage.getItem(name);
+
+        // Überprüfen, ob die Daten im LocalStorage verfügbar sind
+        let waitForData = setInterval(function () {
+            data = localStorage.getItem(name);
+            if (data) {
+                // Daten im LocalStorage gefunden, also stoppe die Überwachung und lade die Tabelle
+                clearInterval(waitForData);
+                parseAndDisplayData(data);
+            }
+        }, interval);
+
+        // Aktualisierungsintervall für die regelmäßige Überprüfung des LocalStorage und Aktualisierung der Tabelle
+        interval = 2000;
+        setInterval(function () {
+            if (data !== localStorage.getItem(name)) {
+                console.log('Neue Daten gefunden.');
+                data = localStorage.getItem(name);
+                parseAndDisplayData(data);
+            }
+        }, interval);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        /**
+         * Warten auf das DOMContentLoaded-Ereignis, um sicherzustellen, dass das Dokument vollständig geladen ist, bevor Funktionen ausgeführt werden,
+         * sobald das DOM vollständig geladen ist, wird die Funktion waitForDataAndLoad aufgerufen
+         */
+        waitForDataAndLoad();
+    });
+</script>
+
+</body>

@@ -1,0 +1,48 @@
+<!-- Autor: Nils Knittel -->
+<!-- Beschreibung: HTML-Datei für den Download der Trainingszeiten -->
+<!-- Die Daten werden aus Google Sheets importiert und im LocalStorage gespeichert -->
+<script>
+
+    function fetchDataAndSaveToLocalStorage(tsvUrl, range, storageKey) {
+        /**
+         * Lade die Daten von der angegebenen TSV-URL und speichere sie im LocalStorage.
+         * @param {string} tsvUrl - Die URL des TSV-Dokuments
+         * @param {string} range - Der Bereich des TSV-Dokuments, der geladen werden soll
+         * @param {string} storageKey - Der Schlüssel, unter dem die Daten im LocalStorage gespeichert werden
+         */
+        return fetch(tsvUrl + '&range=' + range)
+            .then(response => response.text())
+            .then(data => {
+                localStorage.setItem(storageKey, data);
+            })
+            .catch(error => console.error('Fehler beim Laden der TSV-Daten:', error));
+    }
+
+    function saveDataToLocalStorage() {
+        /**
+         * Lade die Daten von der Google Sheet TSV-URL und speichere sie im LocalStorage.
+         * Die Daten werden in verschiedenen Bereichen des Google Sheets-Dokuments gespeichert.
+         */
+        let tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRkWNzg4_P3W66EPer5ao8cG0NH028lbmVdqIuz0XNXvZ4SjrP-2heTsOp1SIbT2i46jkiELeYXC8lh/pub?gid=0&single=true&output=tsv';
+
+        let dataMappings = [
+            {range: 'A2:J9', key: 'wettkampfgruppen'},
+            {range: 'A12:J19', key: 'wsgFitUndFun'},
+            {range: 'A22:J29', key: 'masters'},
+        ];
+
+        let fetchPromises = dataMappings.map(mapping =>
+            fetchDataAndSaveToLocalStorage(tsvUrl, mapping.range, mapping.key)
+        );
+
+        // Warten Sie, bis alle Fetch-Anforderungen abgeschlossen sind, bevor Sie fortfahren
+        Promise.all(fetchPromises)
+            .then(() => {
+                console.log('Alle Daten erfolgreich geladen und im LocalStorage gespeichert.');
+            })
+            .catch(error => console.error('Fehler beim Laden und Speichern der TSV-Daten:', error));
+    }
+
+    saveDataToLocalStorage();
+
+</script>

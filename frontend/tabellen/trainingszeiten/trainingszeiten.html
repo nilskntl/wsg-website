@@ -1,0 +1,201 @@
+<!-- Autor: Nils Knittel -->
+<!-- Beschreibung: HTML-Datei für die Anzeige der Trainingszeiten -->
+<!-- Die Tabelle wird dynamisch durch JavaScript erstellt und aus dem LocalStorage importiert -->
+<!-- Die Daten werden vorher aus Google Sheets importiert und im LocalStorage gespeichert -->
+<body>
+<style>
+    /*
+        * Abwechselnde Farben für gerade und ungerade Zeilen
+        * Farbe für gerade Zeilen: #d1e5ef
+        * Farbe für ungerade Zeilen: #bbd5ea
+     */
+
+    /* Schriftart für den gesamten Body */
+    body {
+        font-family: "Questrial", sans-serif;
+    }
+
+    /* Allgemeine Formatierungen für Tabelle */
+    table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+    }
+
+    /* Allgemeine Formatierungen für Zellen */
+    table,
+    th,
+    td {
+        height: 30px;
+        border: 1px solid white;
+        white-space: break-spaces;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #2E2727;
+        text-align: center;
+        line-height: 1.3;
+    }
+
+    /* Formatierungen für Kopfzeile */
+    thead th {
+        height: 49px;
+        line-height: 1.3;
+        background-color: #252626;
+        color: white;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Abwechselnde Hintergrundfarbe für gerade/ungerade Zeilen */
+    tr:nth-child(even) {
+        background-color: #d1e5ef;
+    }
+
+    tr:nth-child(odd) {
+        background-color: #bbd5ea;
+    }
+
+    /* Reihe 2 */
+    td:nth-child(3) {
+        text-align: left;
+        padding-left: 8px;
+    }
+
+    /* Extra Einstellungen für Handy*/
+    @media only screen and (max-width: 600px) {
+        thead th {
+            font-size: 40%;
+        }
+
+        td {
+            font-size: 45%;
+        }
+
+        svg {
+            width: 40%;
+            height: 40%;
+        }
+    }
+</style>
+
+<table border="1" style="width:100%;">
+    <!-- Kopfzeile wird per js geladen -->
+    <thead id="table-header"></thead>
+    <!-- Body wird per js geladen -->
+    <tbody id="table-body"></tbody>
+</table>
+
+<!--Script zum Importieren für Daten aus Google Sheet -->
+<script>
+
+    function updateTableFromLocalStorage(data) {
+        /**
+         * Funktion zum Aktualisieren der Tabelle basierend auf den im LocalStorage gespeicherten Daten
+         */
+        if (data) {
+            // Holen der Tabelle und ihren Header sowie Body
+            let tableHeader = document.getElementById('table-header');
+            let tableBody = document.getElementById('table-body');
+
+            // Lösche den aktuellen Inhalt der Tabelle
+            tableHeader.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            // Daten in Zeilen aufteilen
+            let rows = data.split('\n');
+            // Die erste Zeile enthält die Header-Zellen
+            let headerCells = rows[0].split('\t');
+
+            // Erstelle eine Header-Zeile und füge die Zellen hinzu, wenn mindestens eine Zelle in der Spalte nicht leer ist
+            let headerRow = document.createElement('tr');
+            for (let i = 0; i < headerCells.length; i++) {
+                let headerCell = document.createElement('th');
+                // Überprüfen, ob mindestens eine Zelle in der Spalte nicht leer ist
+                if (hasNonEmptyCell(rows, i)) {
+                    headerCell.textContent = headerCells[i];
+                    headerRow.appendChild(headerCell);
+                }
+            }
+            tableHeader.appendChild(headerRow);
+
+            // Erstellen Sie Zeilen für den Tabellenkörper und fügen Sie Zellen hinzu, wenn mindestens eine Zelle in der Spalte nicht leer ist
+            for (let i = 1; i < rows.length; i++) {
+                let cells = rows[i].split('\t');
+                let row = document.createElement('tr');
+
+                for (let j = 0; j < cells.length; j++) {
+                    let cell = document.createElement('td');
+                    // Überprüfen, ob der Zellenwert nicht leer ist und mindestens eine Zelle in der Spalte nicht leer ist
+                    if (hasNonEmptyCell(rows, j)) {
+                        cell.textContent = cells[j];
+                        row.appendChild(cell);
+                    }
+                }
+
+                tableBody.appendChild(row);
+            }
+        } else {
+            console.error('Daten im LocalStorage nicht gefunden.');
+        }
+    }
+
+    function hasNonEmptyCell(rows, columnIndex) {
+        /**
+         * Funktion zum Überprüfen, ob mindestens eine Zelle in der Spalte nicht leer ist
+         */
+        for (let i = 1; i < rows.length; i++) {
+            let cells = rows[i].split('\t');
+            if (cells[columnIndex].trim() !== "") {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function waitForDataAndLoad() {
+        /**
+         * Funktion zum Überwachen des LocalStorage auf neue Daten und Aktualisieren der Tabelle,
+         * sobald neue Daten im LocalStorage gefunden werden, wird die Tabelle aktualisiert
+         */
+
+        // Name der Daten im LocalStorage
+        let name = 'wettkampfgruppen';
+
+        // Überwachungsintervall in Millisekunden
+        let interval = 100;
+        let data = localStorage.getItem(name);
+
+        // Überprüfen, ob die Daten im LocalStorage verfügbar sind
+        let waitForData = setInterval(function () {
+            data = localStorage.getItem(name);
+            if (data) {
+                // Daten im LocalStorage gefunden, also stoppe die Überwachung und lade die Tabelle
+                clearInterval(waitForData);
+                updateTableFromLocalStorage(data);
+            }
+        }, interval);
+
+        // Aktualisierungsintervall für die regelmäßige Überprüfung des LocalStorage und Aktualisierung der Tabelle
+        interval = 2000;
+        setInterval(function () {
+            if (data !== localStorage.getItem(name)) {
+                console.log('Neue Daten gefunden.');
+                data = localStorage.getItem(name);
+                updateTableFromLocalStorage(data);
+            }
+        }, interval);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        /**
+         * Funktion zum Warten auf das DOMContentLoaded-Ereignis, um sicherzustellen, dass das Dokument vollständig geladen ist, bevor Funktionen ausgeführt werden,
+         * sobald das DOM vollständig geladen ist, wird die Funktion waitForDataAndLoad aufgerufen
+         */
+        waitForDataAndLoad();
+    });
+
+</script>
+
+
+</body>

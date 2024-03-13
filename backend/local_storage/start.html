@@ -1,0 +1,162 @@
+<!-- Autor: Nils Knittel -->
+<!-- Beschreibung: HTML-Datei für den Download der neuesten Downloads -->
+<!-- Außerdem werden andere Daten im LocalStorage vorgeladen, um die Performance der Seite zu verbessern -->
+<!-- Die Daten werden aus Google Sheets importiert und im LocalStorage gespeichert -->
+<script>
+
+    function loadLatestDownloads() {
+        /**
+         * Lade die neuesten Downloads von der Google Sheet TSV-URL und speichere sie im LocalStorage.
+         */
+
+        // Link zum Google Sheet TSV
+        let tsvURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRI-4BaBrPQAEhyWEkT_V944py0bssL10kQz8Q3xZonusQennsmIiYsFcSsoLeb-Pk6WIPjFz4rIT-w/pub?gid=0&single=true&output=tsv';
+        let range = 'A3:B14';
+
+        // XMLHttpRequest-Objekt erstellen
+        let xhr = new XMLHttpRequest();
+
+        // GET-Anfrage an die Google Sheet URL senden
+        xhr.open('GET', tsvURL + '&range=' + range, true);
+
+        // Callback-Funktion, die aufgerufen wird, wenn die Anfrage erfolgreich abgeschlossen wurde
+        xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                // Speichere die Daten im LocalStorage
+                localStorage.setItem('downloadList', xhr.responseText);
+                console.log('Daten erfolgreich geladen und im LocalStorage gespeichert.');
+            } else {
+                // Fehler bei der Anfrage
+                console.error('Fehler beim Laden der Daten. Statuscode: ' + xhr.status);
+            }
+        };
+
+        // Fehlerbehandlung für die Anfrage
+        xhr.onerror = function () {
+            console.error('Netzwerkfehler beim Laden der Daten.');
+        };
+
+        // Anfrage senden
+        xhr.send();
+
+    }
+
+    function fetchData(tsvUrl, storageKey, range) {
+        /**
+         * Lade die Daten von der angegebenen TSV-URL und speichere sie im LocalStorage.
+         * @param {string} tsvUrl - Die URL des TSV-Dokuments
+         * @param {string} storageKey - Der Schlüssel, unter dem die Daten im LocalStorage gespeichert werden
+         * @param {string} range - Der Bereich des TSV-Dokuments, der geladen werden soll
+         */
+        return fetch(tsvUrl + '&range=' + range)
+            .then(response => response.text())
+            .then(data => {
+                localStorage.setItem(storageKey, data);
+            })
+            .catch(error => console.error('Fehler beim Laden der TSV-Daten:', error));
+    }
+
+    function preloadData() {
+        /**
+         * Lade die Daten im Voraus, um die Performance der Seite zu verbessern.
+         * Die Daten werden im LocalStorage gespeichert und können dann direkt aus dem LocalStorage abgerufen werden.
+         */
+
+            // URLs der TSV-Dokumente
+        let bestenliste = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSMwxC7Lt2jmPudP3caTAR2tkKAwFXB_YTa4t-TxGX61cYzvaysZiX_4NoTAsDLaRsE85TZ4MfkUtmQ/pub?gid=0&single=true&output=tsv';
+        let trainingszeiten = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRkWNzg4_P3W66EPer5ao8cG0NH028lbmVdqIuz0XNXvZ4SjrP-2heTsOp1SIbT2i46jkiELeYXC8lh/pub?gid=0&single=true&output=tsv';
+        let kalender2021 = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTko-SABhF-PwUsGO3lzwjgEAOa7ASL6U7ceLcwigyZgxdJts1IXZc4jFeShcTa-1LCchr7xnbledz6/pub?gid=246777137&single=true&output=tsv';
+        let kalender2022 = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTko-SABhF-PwUsGO3lzwjgEAOa7ASL6U7ceLcwigyZgxdJts1IXZc4jFeShcTa-1LCchr7xnbledz6/pub?gid=116089032&single=true&output=tsv';
+        let kalender2023 = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTko-SABhF-PwUsGO3lzwjgEAOa7ASL6U7ceLcwigyZgxdJts1IXZc4jFeShcTa-1LCchr7xnbledz6/pub?gid=1581134273&single=true&output=tsv';
+        let kalender2024 = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTko-SABhF-PwUsGO3lzwjgEAOa7ASL6U7ceLcwigyZgxdJts1IXZc4jFeShcTa-1LCchr7xnbledz6/pub?gid=0&single=true&output=tsv';
+
+        // Mapping der einzelnen TSV-Dokumente
+        let dataMappings = [{
+            range: 'A1:G',
+            key: 'kalender2024',
+            tsvUrl: kalender2024
+        }, {
+            range: 'A1:G',
+            key: 'kalender2023',
+            tsvUrl: kalender2023
+        }, {
+            range: 'A1:G',
+            key: 'kalender2022',
+            tsvUrl: kalender2022
+        }, {
+            range: 'A1:G',
+            key: 'kalender2021',
+            tsvUrl: kalender2021
+        }, {
+            range: 'A4:F81',
+            key: 'freistilWeiblich',
+            tsvUrl: bestenliste
+        }, {
+            range: 'G4:L81',
+            key: 'freistilMaennlich',
+            tsvUrl: bestenliste
+        }, {
+            range: 'N4:S42',
+            key: 'schmetterlingWeiblich',
+            tsvUrl: bestenliste
+        }, {
+            range: 'T4:Y42',
+            key: 'schmetterlingMaennlich',
+            tsvUrl: bestenliste
+        }, {
+            range: 'N47:S85',
+            key: 'rueckenWeiblich',
+            tsvUrl: bestenliste
+        }, {
+            range: 'T47:Y85',
+            key: 'rueckenMaennlich',
+            tsvUrl: bestenliste
+        }, {
+            range: 'N90:S123',
+            key: 'lagenWeiblich',
+            tsvUrl: bestenliste
+        }, {
+            range: 'T90:Y123',
+            key: 'lagenMaennlich',
+            tsvUrl: bestenliste
+        }, {
+            range: 'A86:F124',
+            key: 'brustWeiblich',
+            tsvUrl: bestenliste
+        }, {
+            range: 'G86:L124',
+            key: 'brustMaennlich',
+            tsvUrl: bestenliste
+        }, {
+            range: 'A2:J9',
+            key: 'wettkampfgruppen',
+            tsvUrl: traipageningszeiten
+        }, {
+            range: 'A12:J19',
+            key: 'wsgFitUndFun',
+            tsvUrl: trainingszeiten
+        }, {
+            range: 'A22:J29',
+            key: 'masters',
+            tsvUrl: trainingszeiten
+        },];
+
+        // Lade die Daten im Voraus und speichere sie im LocalStorage
+        let fetchPromises = dataMappings.map(mapping => {
+            if (!localStorage.getItem(mapping.key)) {
+                fetchData(mapping.tsvUrl, mapping.key, mapping.range);
+            }
+        });
+
+
+        Promise.all(fetchPromises)
+            .then(() => {
+                console.log('Alle Daten erfolgreich vorgeladen und im LocalStorage gespeichert.');
+            })
+            .catch(error => console.error('Fehler beim Laden und Speichern der TSV-Daten:', error));
+    }
+
+    loadLatestDownloads();
+    preloadData();
+
+</script>
