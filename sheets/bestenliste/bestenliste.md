@@ -31,7 +31,7 @@ Dieses Programm ermöglicht eine mühelose Aktualisierung der Bestenlisten eines
 ## Hinweise
 
 - Stelle sicher, dass du die notwendigen Berechtigungen für den Zugriff auf Google Sheets und das Ausführen von Skripten erteilt hast.
-- Um eine Überlastung des DSV-Servers zu verhindern, setze den Trigger nicht all zu oft.
+- Um eine Überlastung des DSV-Servers zu verhindern, setze den Trigger nicht allzu oft.
 
 ## Nutzung
 
