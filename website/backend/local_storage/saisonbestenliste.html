@@ -28,23 +28,23 @@
         let tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQdpuZrkA_RymgbYnDiwAqTT3cG4OhB25idXiP552L6cIixUwRpC3l43pptALK0Wgmiyc3tiV8AwlKL/pub?gid=0&single=true&output=tsv';
 
         let dataMappings = [
-            {range: 'A4:F81', key: 'freistilWeiblich'},
-            {range: 'G4:L81', key: 'freistilMaennlich'},
-            {range: 'N4:S42', key: 'schmetterlingWeiblich'},
-            {range: 'T4:Y42', key: 'schmetterlingMaennlich'},
-            {range: 'N47:S85', key: 'rueckenWeiblich'},
-            {range: 'T47:Y85', key: 'rueckenMaennlich'},
-            {range: 'N90:S123', key: 'lagenWeiblich'},
-            {range: 'T90:Y123', key: 'lagenMaennlich'},
-            {range: 'A86:F124', key: 'brustWeiblich'},
-            {range: 'G86:L124', key: 'brustMaennlich'}
+            {range: 'A4:F81', key: 'freistilWeiblichSaison'},
+            {range: 'G4:L81', key: 'freistilMaennlichSaison'},
+            {range: 'N4:S42', key: 'schmetterlingWeiblichSaison'},
+            {range: 'T4:Y42', key: 'schmetterlingMaennlichSaison'},
+            {range: 'N47:S85', key: 'rueckenWeiblichSaison'},
+            {range: 'T47:Y85', key: 'rueckenMaennlichSaison'},
+            {range: 'N90:S123', key: 'lagenWeiblichSaison'},
+            {range: 'T90:Y123', key: 'lagenMaennlichSaison'},
+            {range: 'A86:F124', key: 'brustWeiblichSaison'},
+            {range: 'G86:L124', key: 'brustMaennlichSaison'}
         ];
 
         let fetchPromises = dataMappings.map(mapping =>
             fetchDataAndSaveToLocalStorage(tsvUrl, mapping.range, mapping.key)
         );
 
-        // Warten Sie, bis alle Fetch-Anforderungen abgeschlossen sind, bevor Sie fortfahren
+        // Warten, bis alle Fetch-Anforderungen abgeschlossen sind, bevor Sie fortfahren
         Promise.all(fetchPromises)
             .then(() => {
                 console.log('Alle Daten erfolgreich geladen und im LocalStorage gespeichert.');
