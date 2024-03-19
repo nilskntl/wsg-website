@@ -1,5 +1,4 @@
-<!-- Autor: Nils Knittel -->
-<!-- Beschreibung: HTML-Datei für den Download der Trainingszeiten -->
+<!-- Beschreibung: HTML-Datei für den Download der Bestenliste -->
 <!-- Die Daten werden aus Google Sheets importiert und im LocalStorage gespeichert -->
 <script>
 
@@ -11,7 +10,7 @@
          * @param {string} storageKey - Der Schlüssel, unter dem die Daten im LocalStorage gespeichert werden
          */
         return fetch(tsvUrl + '&range=' + range)
-            .then(response => response.text())
+    .then(response => response.text())
             .then(data => {
                 localStorage.setItem(storageKey, data);
             })
@@ -21,14 +20,22 @@
     function saveDataToLocalStorage() {
         /**
          * Lade die Daten von der Google Sheet TSV-URL und speichere sie im LocalStorage.
-         * Die Daten werden in verschiedenen Bereichen des Google Sheets-Dokuments gespeichert.
+         * Die Daten werden in verschiedenen Bereichen des TSV-Dokuments gespeichert.
+         * Die Bereiche und die zugehörigen Schlüssel im LocalStorage sind in der dataMappings-Liste definiert.
          */
-        let tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRkWNzg4_P3W66EPer5ao8cG0NH028lbmVdqIuz0XNXvZ4SjrP-2heTsOp1SIbT2i46jkiELeYXC8lh/pub?gid=0&single=true&output=tsv';
+        let tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSMwxC7Lt2jmPudP3caTAR2tkKAwFXB_YTa4t-TxGX61cYzvaysZiX_4NoTAsDLaRsE85TZ4MfkUtmQ/pub?gid=0&single=true&output=tsv';
 
         let dataMappings = [
-            {range: 'A2:J9', key: 'wettkampfgruppen'},
-            {range: 'A12:J19', key: 'wsgFitUndFun'},
-            {range: 'A22:J29', key: 'masters'},
+            { range: 'A4:F81', key: 'freistilWeiblich' },
+            { range: 'G4:L81', key: 'freistilMaennlich' },
+            { range: 'N4:S42', key: 'schmetterlingWeiblich' },
+            { range: 'T4:Y42', key: 'schmetterlingMaennlich' },
+            { range: 'N47:S85', key: 'rueckenWeiblich' },
+            { range: 'T47:Y85', key: 'rueckenMaennlich' },
+            { range: 'N90:S123', key: 'lagenWeiblich' },
+            { range: 'T90:Y123', key: 'lagenMaennlich' },
+            { range: 'A86:F124', key: 'brustWeiblich' },
+            { range: 'G86:L124', key: 'brustMaennlich' }
         ];
 
         let fetchPromises = dataMappings.map(mapping =>
