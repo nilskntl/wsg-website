@@ -8,7 +8,7 @@
          * Lade die neuesten Downloads von der Google Sheet TSV-URL und speichere sie im LocalStorage.
          */
 
-        // Link zum Google Sheet TSV
+            // Link zum Google Sheet TSV
         let tsvURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRI-4BaBrPQAEhyWEkT_V944py0bssL10kQz8Q3xZonusQennsmIiYsFcSsoLeb-Pk6WIPjFz4rIT-w/pub?gid=0&single=true&output=tsv';
         let range = 'A3:B14';
 
@@ -147,7 +147,7 @@
             }
         });
 
-
+        // Warten, bis alle Fetch-Anforderungen abgeschlossen sind, bevor Sie fortfahren
         Promise.all(fetchPromises)
             .then(() => {
                 console.log('Alle Daten erfolgreich vorgeladen und im LocalStorage gespeichert.');

@@ -42,7 +42,7 @@
             fetchDataAndSaveToLocalStorage(tsvUrl, mapping.range, mapping.key)
         );
 
-        // Warten Sie, bis alle Fetch-Anforderungen abgeschlossen sind, bevor Sie fortfahren
+        // Warten, bis alle Fetch-Anforderungen abgeschlossen sind, bevor Sie fortfahren
         Promise.all(fetchPromises)
             .then(() => {
                 console.log('Alle Daten erfolgreich geladen und im LocalStorage gespeichert.');
