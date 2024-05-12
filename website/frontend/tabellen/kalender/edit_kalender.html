@@ -1,0 +1,230 @@
+<!-- Beschreibung: HTML-Datei für die Anzeige des Wettkampfkalenders/der Termine -->
+<!-- Die Tabelle wird dynamisch durch JavaScript erstellt und aus dem LocalStorage importiert -->
+<!-- Die Daten werden vorher aus Google Sheets importiert und im LocalStorage gespeichert -->
+<body>
+<style>
+    /*
+       * Abwechselnde Farben für gerade und ungerade Zeilen
+       * Farbe für gerade Zeilen: #d1e5ef
+       * Farbe für ungerade Zeilen: #bbd5ea
+    */
+
+    /* Schriftart für den gesamten Body */
+    body {
+        font-family: "Questrial", sans-serif;
+    }
+
+    /* Allgemeine Formatierungen für die Tabelle */
+    table {
+        line-height: 1.2; /* Zeilenhöhe */
+        width: 100%; /* Breite */
+        table-layout: fixed; /* Kein scrollen nach links und rechts */
+        border-collapse: collapse; /* Verschmilzt Zellgrenzen / Konsistentes Erscheinungsbild */
+    }
+
+    /* Container für den gesamten Inhalt der Form */
+    .form-container {
+        max-width: 100%; /* Maximalbreite des Containers */
+        height: fit-content; /* Höhe des Containers */
+        margin: 0 auto; /* Zentriert auf der Seite */
+        border-radius: 10px; /* Abgerundete Ecken */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Schatten */
+        padding: 20px; /* Innenabstand */
+        position: relative; /* Positionierung für die absolute Positionierung des Ladekreises */
+        background-color: var(--form-color); /* Hintergrundfarbe */
+    }
+
+    /* Design für das Formular */
+    form {
+        max-width: 100%;
+        margin: 0 auto;
+        color: #2e2727; /* Textfarbe */
+        accent-color: #2e2727; /* Akzentfarbe */
+    }
+
+    /* Allgemeine Formatierungen für Zellen */
+    table,
+    th,
+    td {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        height: 31px; /* Standardhöhe für Zellen */
+        font-size: 15px; /* Standardtextgröße für Zellen */
+        border: 1px solid white; /* Rahmeneinstellungen */
+        color: #2e2727; /* Textfarbe */
+        text-align: center; /* Textausrichtung */
+    }
+
+    /* Formatierungen für die Kopfzeile */
+    thead th {
+        line-height: 1.2;
+        word-wrap: break-word;
+        font-weight: bold; /* Fettschrift für die Kopfzeile */
+        height: 50px; /* Höhe der Kopfzeile */
+        font-size: 15px; /* Schriftgröße */
+        background-color: #252626; /* Hintergrundfarbe */
+        color: white; /* Textfarbe */
+    }
+
+    /* Einstellungen für gerade/ungerade Zeilen */
+    /* Gerade Zeilen */
+    tr:nth-child(even) {
+        background-color: #d1e5ef; /* Hintergrundfarbe für gerade Zeilen */
+    }
+
+    /* Ungerade Zeilen */
+    tr:nth-child(odd) {
+        background-color: #bbd5ea; /* Hintergrundfarbe für ungerade Zeilen */
+    }
+
+    /* Formatierungen für bestimmte Zeilen */
+    /* Reihe 3 */
+    td:nth-child(3) {
+        text-align: left; /* Text links ausgerichtet */
+        padding-left: 8px; /* Text um 8px nach rechts verschoben */
+    }
+
+    /* Extra Einstellungen für Handy*/
+    @media only screen and (max-width: 600px) {
+        thead th {
+            height: 30px; /* Höhe der Kopfzeile auf Mobilgeräten */
+            font-size: 45%; /* Schriftgröße für die Kopfzeile auf Mobilgeräten */
+        }
+
+        th,
+        td {
+            height: 18px; /* Standardhöhe der Zeilen auf Mobilgeräten */
+            font-size: 45%; /* Schriftgröße für den Rest der Tabelle auf Mobilgeräten */
+        }
+
+        /* Skaliere das Icon auf 45% */
+        svg {
+            width: 40%;
+            height: 40%;
+        }
+    }
+</style>
+<!-- Die eigentliche Tabelle -->
+<table border="1" style="width: 100%;">
+    <!-- Kopfzeile -->
+    <thead id="table-header"></thead>
+    <!-- Der Körper der Tabelle, der dynamisch durch JavaScript erstellt wird -->
+    <tbody id="table-body"></tbody>
+</table>
+<!-- Skript zum Importieren von Daten aus Google Sheets -->
+<script>
+    function updateTableFromLocalStorage(data) {
+        /**
+         * Aktualisiert die Tabelle basierend auf den im LocalStorage gespeicherten Daten
+         * @param data - Daten aus dem LocalStorage
+         */
+
+        // Lade die Daten aus dem LocalStorage und fahre fort, wenn Daten gefunden wurden
+        if (data) {
+
+            // Holen der Tabelle und ihren Header sowie Body
+            let tableHeader = document.getElementById('table-header');
+            let tableBody = document.getElementById('table-body');
+
+            // Lösche den aktuellen Inhalt der Tabelle
+            tableHeader.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            let rows = data.split('\n');
+            // Die erste Zeile enthält die Header-Zellen
+            let headerCells = rows[0].split('\t');
+
+            // Breiten für die Spalten in Prozent
+            const columnWidths = ['12%', '22%', '34%', '14%', '14%', '14%', '14%'];
+
+
+            // Erstelle eine Header-Zeile und füge die Zellen hinzu, wenn mindestens eine Zelle in der Spalte nicht leer ist
+            let headerRow = document.createElement('tr');
+            for (let i = 0; i < 7; i++) {
+                let headerCell = document.createElement('th');
+                headerCell.textContent = headerCells[i];
+                headerCell.style.width = columnWidths[i];
+                headerRow.appendChild(headerCell);
+            }
+            tableHeader.appendChild(headerRow);
+
+            for (let i = rows.length - 1; i > 0; i--) {
+                let cells = rows[i].split('\t'); // Hier wird der Tab als Trennzeichen verwendet
+                let row = document.createElement('tr');
+
+                for (let j = 0; j < cells.length; j++) {
+                    let cell = document.createElement('td');
+
+                    if (j === 3 || j === 5 || j === 6) {
+                        if (String(cells[j]).includes('drive.google.com')) {
+                            // Erstelle ein Anhangs-Symbol mit Hyperlink
+                            let attachmentIcon = document.createElement('a');
+                            attachmentIcon.href = cells[j]; // Der Hyperlink ist der Inhalt der Zelle
+                            attachmentIcon.target = '_blank';
+                            attachmentIcon.rel = 'noreferrer noopener';
+
+                            let svgIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                            svgIcon.setAttribute('width', '18');
+                            svgIcon.setAttribute('height', '18');
+                            svgIcon.setAttribute('viewBox', '0 0 24 24');
+                            svgIcon.innerHTML = '<image xlink:href="https://static.wixstatic.com/shapes/6b0c14_5ec77bcadec144ab9a8eb3d38a2863b1.svg" width="24" height="24" />';
+
+                            attachmentIcon.appendChild(svgIcon);
+                            cell.appendChild(attachmentIcon);
+                        }
+                    } else {
+                        cell.textContent = cells[j];
+                    }
+
+                    row.appendChild(cell);
+                }
+
+                tableBody.appendChild(row);
+            }
+        } else {
+            console.error('Daten im LocalStorage nicht gefunden.');
+        }
+    }
+
+    function waitForDataAndLoad() {
+        /**
+         * Überwacht den LocalStorage auf neue Daten und lädt die Tabelle, wenn neue Daten gefunden werden
+         * Überwachungsintervall: 100ms
+         */
+
+            // Name der Daten im LocalStorage
+            // Name convention: kalenderJahr
+        let name = "kalender2024";
+
+        // Überwachungsintervall in Millisekunden
+        let interval = 100;
+        let data = localStorage.getItem(name);
+
+        // Überprüfen, ob die Daten im LocalStorage verfügbar sind
+        let waitForData = setInterval(function () {
+            data = localStorage.getItem(name);
+            if (data) {
+                // Daten im LocalStorage gefunden, also stoppe die Überwachung und lade die Tabelle
+                clearInterval(waitForData);
+                updateTableFromLocalStorage(data);
+            }
+        }, interval);
+
+        // Aktualisierungsintervall für die regelmäßige Überprüfung des LocalStorage und Aktualisierung der Tabelle
+        interval = 2000;
+        setInterval(function () {
+            if (data !== localStorage.getItem(name)) {
+                console.log("Neue Daten gefunden.");
+                data = localStorage.getItem(name);
+                updateTableFromLocalStorage(data);
+            }
+        }, interval);
+    }
+
+    // Warten auf das DOMContentLoaded-Ereignis, um sicherzustellen, dass das Dokument vollständig geladen ist, bevor Funktionen ausgeführt werden
+    document.addEventListener("DOMContentLoaded", function () {
+        // Daten im LocalStorage überwachen und dann updateTableFromLocalStorage aufrufen
+        waitForDataAndLoad();
+    });
+</script>
+</body>
