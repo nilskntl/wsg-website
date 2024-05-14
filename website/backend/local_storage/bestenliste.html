@@ -10,7 +10,7 @@
          * @param {string} storageKey - Der Schlüssel, unter dem die Daten im LocalStorage gespeichert werden
          */
         return fetch(tsvUrl + '&range=' + range)
-    .then(response => response.text())
+            .then(response => response.text())
             .then(data => {
                 localStorage.setItem(storageKey, data);
             })

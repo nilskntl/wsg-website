@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bestenliste</title>
+    <style>
+        /* Definiere Variablen für die Farben */
+        :root {
+            --primary-color: #31353e;
+            --secondary-color: #424959;
+            --contrast-color: #ffffff;
+            --primary-background: #f3f3f5;
+            --secondary-background: var(--contrast-color);
+            --mobile-size: 600px;
+            --border-radius: 8px;
+        }
+
+        /* Einstelungen für den gesamten Body */
+        body {
+            max-width: 100%;
+            font-family: "Questrial", sans-serif;
+            background-color: var(--primary-background);
+            padding: 32px 10px 10px 10px;
+            cursor: default;
+        }
+
+        /* Allgemeine Formatierungen für Tabelle */
+        table {
+            max-width: 100%;
+            width: 100%;
+            table-layout: fixed;
+            line-height: 1.3;
+            border-collapse: collapse;
+            text-align: center;
+            overflow: hidden;
+            white-space: break-spaces;
+            font-size: 12px;
+            color: var(--primary-color);
+        }
+
+        /* Allgemeine Formatierungen für Zellen */
+        th,
+        td {
+            height: 32px;
+            vertical-align: middle;
+            background-color: var(--primary-background);
+            border-bottom: solid 8px var(--secondary-background);
+            opacity: 1;
+        }
+
+        /* Formatierungen für einzelne Zeilen */
+        tr {
+            width: 50%;
+            opacity: 1;
+            transition: opacity 0.5s;
+        }
+
+        /* Formatierungen für einzelne Zeilen beim Hovern */
+        tr:hover {
+            opacity: 0.6;
+        }
+
+        /* Formatierunge für Einträge aus diesem Jahr */
+        .current-year {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        /* Formatierung für den Dividierer Container */
+        .divider-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-right: 10px;
+            gap: 12px;
+        }
+
+        /* Formatierungen für spezielle Zellen (z.B. für die Distanz) */
+        .distance {
+            width: 7%;
+            height: min-content;
+            font-weight: bold;
+            font-size: 16px;
+            background-color: var(--primary-background);
+            text-align: right;
+            color: var(--primary-color);
+        }
+
+        /* Formatierungen für die Header Zellen */
+        .header-cells {
+            height: min-content;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            background-color: var(--secondary-background);
+            color: var(--primary-color);
+            font-weight: bold;
+            border-bottom: solid 4px var(--secondary-background);
+            vertical-align: bottom;
+        }
+
+        /* Formatierungen für den Container einer Disziplin */
+        .discipline {
+            width: 93%;
+            margin-top: 12px;
+            margin-bottom: 24px;
+            border-radius: var(--border-radius);
+            background-color: var(--secondary-background);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            max-width: 100%;
+            overflow: hidden;
+            padding: 16px 8px 8px 8px;
+        }
+
+
+        /* Definition der Breiten der Spalten */
+        .col1 {
+            width: 8%;
+        }
+
+        .col2 {
+            width: 34%;
+        }
+
+        .col3 {
+            width: 14%;
+        }
+
+        .col4 {
+            width: 10%;
+        }
+
+        .col5 {
+            width: 22%;
+        }
+
+        .col6 {
+            width: 12%;
+        }
+
+        /* Formatierungen für den Container, in dem sich einzelne Dropdowns befinden */
+        .dropdowns {
+            display: flex;
+            gap: 48px;
+            justify-content: right;
+            padding-right: 32px;
+        }
+
+        /* Formatierungen für einen Dropdown Container */
+        .dropdown {
+            width: 20%;
+            color: var(--contrast-color);
+            font-size: 13px;
+            align-items: center;
+            margin-bottom: 12px;
+            z-index: 1000;
+        }
+
+        /* Formatierungen für den Dropdown Container beim Hovern */
+        .dropdown:hover .dropdown-svg {
+            transform: rotate(180deg);
+        }
+
+        /* Formatierungen für das Dropdown SVG (Pfeil auf dem Button) */
+        .dropdown-svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--contrast-color);
+            transition: transform 0.5s;
+        }
+
+        /* Formatierungen für den Dropdown Button */
+        .dropdown-select {
+            width: 100%;
+            padding: 8px 8px 8px 16px;
+            border-radius: var(--border-radius);
+            background-color: var(--primary-color);
+            border: solid 1px var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            align-content: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background-color 0.5s linear, box-shadow 0.5s linear, color 0.5s linear;
+        }
+
+        /* Formatierungen für den Dropdown Button beim Hovern */
+        .dropdown-select:hover {
+            background-color: rgba(0, 0, 0, 0);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0);
+            color: var(--primary-color);
+        }
+
+        /* Formatierungen für die Dropdown Liste (Desktop) */
+        .dropdown-list {
+            background-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            position: absolute;
+            top: 86px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s linear, visibility 0.5s linear;
+        }
+
+        /* Formatierungen für ein Element in der Dropdown Liste (Desktop) */
+        .dropdown-list__item {
+            padding: 16px 64px 16px 16px;
+            cursor: pointer;
+            transition: background-color 0.5s;
+        }
+
+        /* Formatierungen für ein Element in der Dropdown Liste beim Hovern (Desktop) */
+        .dropdown-list__item:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Formatierungen für die Dropdown Liste (Mobil) */
+        .popup {
+            display: none;
+            position: relative;
+            top: 8px;
+            left: 0;
+            background-color: var(--primary-color);
+            border-radius: var(--border-radius);
+            box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+            align-content: center;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            visibility: hidden;
+            opacity: 0;
+            margin-bottom: 16px;
+            transition: opacity 0.5s linear, visibility 0.5s linear;
+        }
+
+        /* Formatierungen für in Element in der Dropdown Liste beim Hovern (Mobil) */
+        .popup__item {
+            padding: 16px 64px 16px 16px;
+            cursor: pointer;
+            transition: background-color 0.5s;
+            text-align: left;
+            color: var(--contrast-color);
+        }
+
+        /* Formatierungen für ein Element in der Dropdown Liste beim Hovern (Mobil) */
+        .popup__item:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Formatierungen für ein Overlay, dass die Eckpunkte der Dropdown Liste verdeckt */
+        div[data-radius="top"] {
+            border-top-left-radius: var(--border-radius);
+            border-top-right-radius: var(--border-radius);
+        }
+
+        /* Formatierungen für ein Overlay, dass die Eckpunkte der Dropdown Liste verdeckt */
+        div[data-radius="bottom"] {
+            border-bottom-left-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
+        }
+
+        /* Einstellungen für Handy */
+        @media only screen and (max-width: 600px) {
+            .dropdowns {
+                flex-direction: column;
+                gap: 0;
+                padding-right: 24px;
+            }
+
+            .dropdown {
+                width: 100%;
+            }
+
+            .dropdown-svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .dropdown-select {
+                width: 100%;
+                padding: 8px 8px 8px 16px;
+            }
+
+            .dropdown-list {
+                top: 48px;
+            }
+
+            table {
+                font-size: 8px;
+            }
+
+            .divider-container {
+                flex-direction: column;
+                gap: 8px;
+                padding-right: 0;
+            }
+
+            .discipline {
+                width: 100%;
+                padding: 16px 8px 8px 8px;
+                margin-bottom: 8px;
+            }
+
+            .distance {
+                width: 100%;
+                font-size: 14px;
+                text-align: center;
+                background-color: var(--secondary-background);
+                margin-bottom: 12px;
+            }
+        }
+
+    </style>
+</head>
+<!-- Body des Dokuments -->
+<body>
+<!-- Dropdowns für die Filterung der Bestenlisten -->
+<div class="dropdowns">
+    <!-- Dropdowns für Geschlecht -->
+    <div class="dropdown" id="dropdown__gender">
+        <!-- Button für die Auswahl des Geschlechts -->
+        <div class="dropdown-select" id="dropdown-select__gender">
+            <span>Weiblich</span>
+            <svg class="dropdown-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor"
+                 stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </div>
+        <!-- Liste der Geschlechter (Desktop) -->
+        <div class="dropdown-list" id="dropdown-list__gender">
+            <div class="dropdown-list__item" id="dropdown-list__item__female" data-radius="top">Weiblich</div>
+            <div class="dropdown-list__item" id="dropdown-list__item__male" data-radius="bottom">Männlich</div>
+        </div>
+        <!-- Liste der Geschlechter (Mobil) -->
+        <div class="popup-overlay" id="popup-overlay__gender">
+            <div class="popup" id="popup__gender">
+                <div class="popup__item" data-radius="top">Weiblich</div>
+                <div class="popup__item" data-radius="bottom">Männlich</div>
+            </div>
+        </div>
+    </div>
+    <!-- Dropdowns für Schwimmstil -->
+    <div class="dropdown" id="dropdown__stroke">
+        <!-- Button für die Auswahl des Schwimmstils -->
+        <div class="dropdown-select" id="dropdown-select__stroke">
+            <span>Freistil</span>
+            <svg class="dropdown-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor"
+                 stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </div>
+        <!-- Liste der Schwimmstile (Desktop) -->
+        <div class="dropdown-list" id="dropdown-list__stroke">
+            <div class="dropdown-list__item" id="dropdown-list__item__butterfly" data-radius="top">Schmetterling</div>
+            <div class="dropdown-list__item" id="dropdown-list__item__backstroke">Rücken</div>
+            <div class="dropdown-list__item" id="dropdown-list__item__breaststroke">Brust</div>
+            <div class="dropdown-list__item" id="dropdown-list__item__freestyle">Freistil</div>
+            <div class="dropdown-list__item" id="dropdown-list__item__individual" data-radius="bottom">Lagen</div>
+        </div>
+        <!-- Liste der Schwimmstile (Mobil) -->
+        <div class="popup-overlay" id="popup-overlay__stroke">
+            <div class="popup" id="popup__stroke">
+                <div class="popup__item" data-radius="top">Freistil</div>
+                <div class="popup__item">Brust</div>
+                <div class="popup__item">Schmetterling</div>
+                <div class="popup__item">Rücken</div>
+                <div class="popup__item" data-radius="bottom">Lagen</div>
+            </div>
+        </div>
+    </div>
+    <!-- Dropdowns für Bahnlänge -->
+    <div class="dropdown" id="dropdown__lane">
+        <!-- Button für die Auswahl der Bahnlänge -->
+        <div class="dropdown-select" id="dropdown-select__lane">
+            <span>Kurzbahn</span>
+            <svg class="dropdown-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor"
+                 stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </div>
+        <!-- Liste der Bahnlängen (Desktop) -->
+        <div class="dropdown-list" id="dropdown-list__lane">
+            <div class="dropdown-list__item" id="dropdown-list__item__short" data-radius="top">Kurzbahn</div>
+            <div class="dropdown-list__item" id="dropdown-list__item__long" data-radius="bottom">Langbahn</div>
+        </div>
+        <!-- Liste der Bahnlängen (Mobil) -->
+        <div class="popup-overlay" id="popup-overlay__lane">
+            <div class="popup" id="popup__lane">
+                <div class="popup__item" data-radius="top">Kurzbahn</div>
+                <div class="popup__item" data-radius="bottom">Langbahn</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Container, in dem per JavaScript die Bestenlisten eingefügt werden -->
+<div id="leaderboards"></div>
+
+<!-- Skript zum Importieren von Daten aus Google Sheets -->
+<!-- Das Skript enthält Klassen für Personen, Ergebnisse, Disziplinen und Bestenlisten -->
+<!-- Es verwaltet die Bestenlisten und filtert sie nach Disziplin und Geschlecht -->
+<script>
+
+    const STROKE = {
+        /**
+         * Konstanten für die verschiedenen Schwimmstile
+         */
+        Freistil: "Freistil",
+        Brust: "Brust",
+        Schmetterling: "Schmetterling",
+        Ruecken: "Rücken",
+        Lagen: "Lagen",
+    }
+
+    const LANE = {
+        /**
+         * Konstanten für die verschiedenen Bahnlängen
+         */
+        Kurzbahn: "Kurzbahn",
+        Langbahn: "Langbahn",
+    }
+
+    const GENDER = {
+        /**
+         * Konstanten für die verschiedenen Geschlechter
+         */
+        Maennlich: "Männlich",
+        Weiblich: "Weiblich",
+    }
+
+    class Person {
+        /**
+         * Klasse für eine Person (z.B. Max Mustermann, 2000, männlich)
+         * @property {string} name - Name der Person
+         * @property {number} birth - Geburtsjahr der Person
+         * @property {
+         */
+
+        constructor(name, birth, gender) {
+            this.name = name;
+            this.birth = birth;
+            this.gender = gender;
+        }
+    }
+
+    class Result {
+        /**
+         * Klasse für ein Ergebnis in einer Bestenliste (z.B. Platz 1, Max Mustermann, 25.00, 2000, Berlin)
+         * @property {Person} person - Person, die das Ergebnis erzielt hat
+         * @property {string} time - Zeit des Ergebnisses
+         * @property {number} date - Datum des Ergebnisses
+         * @property {string} city - Stadt des Ergebnisses
+         * @property {number} ranking - Platzierung des Ergebnisses
+         */
+
+        constructor(person, time, date, city, ranking) {
+            this.person = person;
+            this.time = time;
+            this.date = date;
+            this.city = city;
+            this.ranking = ranking;
+        }
+    }
+
+    class Discipline {
+        /**
+         * Klasse für die Disziplin einer Bestenliste (z.B. 50m Freistil, Kurzbahn, weiblich)
+         * @param {string} stroke - Schwimmstil (Freistil, Brust, Schmetterling, Rücken, Lagen)
+         * @param {string} lane - Bahnlänge (Kurzbahn, Langbahn)
+         * @param {number} distance - Distanz (z.B. 50m, 100m, 200m)
+         * @param {string
+         */
+
+        constructor(stroke, lane, distance, gender) {
+            this.stroke = stroke;
+            this.lane = lane;
+            this.distance = distance;
+            this.gender = gender;
+        }
+
+        get id() {
+            return this.stroke + this.lane + this.distance + this.gender;
+        }
+    }
+
+    class Leaderboard {
+        /**
+         * Klasse für die Verwaltung einer Bestenliste
+         * @property {Discipline} discipline - Disziplin der Bestenliste
+         * @property {Result[]} results - Liste von Ergebnissen in der Bestenliste
+         */
+
+        constructor(discipline) {
+            this.discipline = discipline;
+            this.results = [];
+        }
+
+        get bestResult() {
+            /**
+             * Funktion zum Ermitteln des besten Ergebnisses in der Bestenliste
+             * @returns {Result} - bestes Ergebnis in der Bestenliste
+             */
+            if (this.results.length === 0) {
+                return null;
+            }
+            let bestResult = this.results[0];
+            for (let i = 1; i < this.results.length; i++) {
+                if (this.results[i].ranking < bestResult.ranking) {
+                    bestResult = this.results[i];
+                }
+            }
+            return bestResult;
+        }
+
+        addResult(result) {
+            /**
+             * Funktion zum Hinzufügen eines Ergebnisses zur Bestenliste
+             * @param {Result} result - Ergebnis, das hinzugefügt werden soll
+             * @returns {boolean} - true, wenn das Ergebnis hinzugefügt wurde, false, wenn das Ergebnis bereits in der Bestenliste vorhanden ist
+             */
+
+            // Check if the result is already in the leaderboard
+            for (let i = 0; i < this.results.length; i++) {
+                if (this.results[i].person.name === result.person.name) {
+                    return false;
+                }
+            }
+            this.results.push(result);
+            return true;
+        }
+    }
+
+    class Leaderboards {
+        /**
+         * Klasse für die Verwaltung von Bestenlisten
+         * @property {Leaderboard[]} leaderboards - Liste von Bestenlisten
+         */
+
+        constructor() {
+            this.leaderboards = [];
+        }
+
+        addLeaderboard(leaderboard) {
+            /**
+             * Funktion zum Hinzufügen einer Bestenliste
+             * @param {Leaderboard} leaderboard - Bestenliste, die hinzugefügt werden soll
+             */
+
+                // Überprüfe, ob die Bestenliste bereits existiert
+            let alreadyExists = null;
+            for (let i = 0; i < this.leaderboards.length; i++) {
+                if (this.leaderboards[i].discipline.id === leaderboard.discipline.id) {
+                    alreadyExists = this.leaderboards[i]; // Bestenliste existiert bereits, speichere sie
+                }
+            }
+            if (alreadyExists !== null) { // Wenn die Bestenliste bereits existiert, aktualisiere sie
+                alreadyExists.results = leaderboard.results;
+            } else { // Ansonsten füge die Bestenliste hinzu
+                this.leaderboards.push(leaderboard);
+            }
+        }
+
+        filterLeaderboards(filter) {
+            /**
+             * Funktion zum Filtern der Bestenlisten nach Disziplin und Geschlecht
+             * @param {Filter} filter - Filterkriterien
+             * @returns {Leaderboard[]} - Liste von Bestenlisten, die den Filterkriterien entsprechen
+             */
+
+            if (!(filter instanceof Filter)) throw new Error("Filter ist kein Filter-Objekt"); // Überprüfe, ob der Filter ein Filter-Objekt ist
+
+            let filteredLeaderboards = []; // Liste von gefilterten Bestenlisten
+            for (let i = 0; i < this.leaderboards.length; i++) {
+                if (this.leaderboards[i].discipline.stroke === filter.stroke &&
+                    this.leaderboards[i].discipline.lane === filter.lane &&
+                    this.leaderboards[i].discipline.gender === filter.gender) {
+                    filteredLeaderboards.push(this.leaderboards[i]);
+                }
+            }
+            return filteredLeaderboards;
+        }
+    }
+
+    function loadLeaderboardsIntoTable(leaderboards) {
+        /**
+         * Funktion zum Laden der Bestenliste (eine Lage, ein Geschlecht, eine Bahnlänge) in die Tabelle
+         * @param {Leaderboards[]} leaderboards - Bestenlisten, die in die Tabelle geladen werden sollen
+         */
+
+        let leaderboardsDiv = document.getElementById('leaderboards'); // Hole das Element mit der ID 'leaderboards'
+        leaderboardsDiv.innerHTML = ''; // Setze den Inhalt des Elements auf leer
+
+        function createHeader() {
+            /**
+             * Funktion zum Erstellen der Kopfzeile der Tabelle
+             * @returns {HTMLTableRowElement} - Kopfzeile der Tabelle
+             */
+            let row = document.createElement('tr');
+            let headerCells = ['Platz', 'Name', 'Zeit', 'Jg.', 'Ort', 'Jahr'];
+
+            for (let i = 0; i < headerCells.length; i++) {
+                let cell = document.createElement('th');
+                cell.textContent = headerCells[i];
+                cell.className = 'header-cells';
+                row.appendChild(cell);
+            }
+            return row;
+        }
+
+        for (let i = 0; i < leaderboards.length; i++) {
+            /**
+             * Gehe jede Bestenliste zu einer Disziplin durch und füge die Ergebnisse in die Tabelle ein
+             */
+            let dividerContainer = document.createElement('div'); // Erstelle ein neues Div-Element, in dem der Rest eingefügt wird
+            let leaderboard = leaderboards[i]; // Bestenliste zu einer Disziplin
+            let disciplineDiv = document.createElement('div'); // Erstelle ein neues Div-Element
+            let table = document.createElement('table'); // Erstelle eine neue Tabelle
+            let distanceCell = document.createElement('div'); // Erstelle einen Div für die Distanz
+
+            table.innerHTML = '<colgroup><col class="col1"><col class="col2"><col class="col3"><col class="col4"><col class="col5"><col class="col6"></colgroup>'; // Übernehme die in col1 - col6 definierten Größen für die Spalten
+
+            distanceCell.className = 'distance'; // Setze die Klasse des Containers auf 'distance'
+            distanceCell.innerText = leaderboard.discipline.distance + 'm '; // Setze den Text des Containers auf die Distanz
+
+            table.appendChild(createHeader()); // Füge die Kopfzeile in den Body der Tabelle ein (Platz, Name, Zeit, Jg., Ort, Jahr
+
+            for (let j = 0; j < leaderboard.results.length; j++) {
+                let row = document.createElement('tr'); // Erstelle eine neue Zeile
+
+                let result = leaderboard.results[j]; // Ergebnis in der Bestenliste
+
+                let rank = document.createElement('td'); // Erstelle eine Zelle für den Rang
+                let name = document.createElement('td'); // Erstelle eine Zelle für den Namen
+                let time = document.createElement('td'); // Erstelle eine Zelle für die Zeit
+                let birth = document.createElement('td'); // Erstelle eine Zelle für das Geburtsjahr
+                let city = document.createElement('td'); // Erstelle eine Zelle für den Ort
+                let year = document.createElement('td'); // Erstelle eine Zelle für das Jahr
+
+                // Setze die obere linke Ecke der ersten Zelle auf gerundet
+                let borderRadius = document.documentElement.style.getPropertyValue('--border-radius');
+                rank.style.borderTopLeftRadius = borderRadius;
+                rank.style.borderBottomLeftRadius = borderRadius;
+                year.style.borderTopRightRadius = borderRadius;
+                year.style.borderBottomRightRadius = borderRadius;
+
+                rank.textContent = result.ranking; // Setze den Text der Zelle auf den Rang
+                row.append(rank); // Füge die Zelle in die Zeile ein
+
+                name.textContent = result.person.name; // Setze den Text der Zelle auf den Namen
+                row.append(name); // Füge die Zelle in die Zeile ein
+
+                time.textContent = result.time; // Setze den Text der Zelle auf die Zeit
+                row.append(time); // Füge die Zelle in die Zeile ein
+
+                birth.textContent = result.person.birth; // Setze den Text der Zelle auf das Geburtsjahr
+                row.append(birth); // Füge die Zelle in die Zeile ein
+
+                city.textContent = result.city; // Setze den Text der Zelle auf den Ort
+                row.append(city); // Füge die Zelle in die Zeile ein
+
+                let currentYear = new Date().getFullYear(); // Get the current year (yyyy)
+                if (result.date.toString().trim() === currentYear.toString()) { // Überprüfe, ob das Jahr dem aktuellen Jahr entspricht
+                    row.className = 'current-year'; // Setze die Klasse der Zelle auf 'current-year'
+                }
+                year.textContent = result.date; // Setze den Text der Zelle auf das Jahr
+                row.append(year); // Füge die Zelle in die Zeile ein
+
+                table.appendChild(row);
+            }
+
+            dividerContainer.className = 'divider-container'; // Setze die Klasse des Div-Elements auf 'divider-container'
+            let mobileSize = getComputedStyle(document.documentElement).getPropertyValue('--mobile-size');
+            if (window.innerWidth <= parseInt(mobileSize.slice(0, -2))) {
+                disciplineDiv.appendChild(distanceCell); // Füge die Zelle für die Distanz in das Div-Element ein
+                // Füge eine horizontale Linie ein
+                let hr = document.createElement('hr');
+                hr.style.width = '100%';
+                hr.style.margin = '8px 0';
+                hr.style.border = '0';
+                hr.style.borderTop = '1px solid #ccc';
+                disciplineDiv.appendChild(hr);
+            } else {
+                dividerContainer.appendChild(distanceCell); // Füge die Zelle für die Distanz in das Div-Element ein
+            }
+            disciplineDiv.appendChild(table); // Füge die Tabelle in das Div-Element ein
+            disciplineDiv.className = 'discipline'; // Setze die Klasse des Div-Elements auf 'discipline'
+            dividerContainer.appendChild(disciplineDiv); // Füge das Div-Element in das Div-Element ein
+            leaderboardsDiv.appendChild(dividerContainer); // Füge das Div-Element in das Element mit der ID 'leaderboards' ein
+        }
+    }
+
+    function extractLeaderboardsFromData(data, gender, stroke) {
+        /**
+         * Funktion zum Extrahieren von Bestenlisten aus den Daten aus dem LocalStorage
+         * @param {string} data - Daten aus dem LocalStorage
+         * @param {string} gender - Geschlecht (Männlich, Weiblich)
+         * @param {string} stroke - Schwimmstil (Freistil, Brust, Schmetterling, Rücken, Lagen)
+         */
+
+        if (data === null) { // Überprüfe, ob Daten im LocalStorage vorhanden sind
+            console.error("Daten im LocalStorage nicht gefunden.");
+            return null;
+        }
+        let rows = data.split("\n"); // Teile die Daten in Zeilen auf
+
+        let currentLeaderboard = null; // Aktuelle Bestenliste
+        let distance = null; // Distanzangabe
+
+        for (let i = 0; i < rows.length; i++) {
+            /**
+             * Durchlaufe alle Zeilen und erstelle die Bestenliste
+             */
+
+            let cells = rows[i].split("\t");
+
+            let currentRanking = null;
+            let rank = null;
+            let person = null;
+            let name = null;
+            let birth = null;
+            let time = null;
+            let date = null;
+            let city = null;
+
+            for (let j = 0; j < cells.length; j++) {
+                /**
+                 * Gehe alle Zellen in der Zeile durch und erstelle die Bestenliste
+                 */
+
+                if (j === 0) { // Erste Zeile: Distanzangabe, Bahnlänge oder Rang
+
+                    if (cells[j].slice(-2) === '0m') { // Überprüfe, ob es sich um die Distanzangabe handelt
+                        distance = cells[j];
+                        break;
+                    }
+                    if (cells[j] === LANE.Kurzbahn || cells[j] === LANE.Langbahn) {  // Überprüfe, ob es sich um die Bahnlänge handelt
+                        if (currentLeaderboard !== null) { // Falls bereits eine Bestenliste vorhanden ist, füge sie zur Liste hinzu
+                            LEADERBOARDS.addLeaderboard(currentLeaderboard);
+                        }
+                        currentLeaderboard = new Leaderboard(new Discipline(stroke, cells[j], parseInt(distance.slice(0, -1)), gender)); // Erstelle eine neue Bestenliste
+                        break;
+                    }
+                    try {
+                        rank = parseInt(cells[j].slice(0, -1)); // Falls nichts von beidem zu finden ist, dann ist die Zelle der Ranking
+                    } catch (e) {
+                        console.error("Fehler beim Parsen des Rangs:", e);
+                    }
+                }
+                if (j === 1) name = cells[j]; // Zweite Zeile: Name
+                if (j === 2) time = cells[j]; // Dritte Zeile: Zeit
+                if (j === 3) birth = cells[j]; // Vierte Zeile: Geburtsjahr
+                if (j === 4) city = cells[j]; // Fünfte Zeile: Ort
+                if (j === 5) date = cells[j]; // Sechste Zeile: Jahr
+            }
+            // Überprüfe, ob alle notwendigen Informationen vorhanden sind, um ein Ergebnis zu erstellen
+            if (rank !== null && name !== null && time !== null && birth !== null && city !== null && date !== null && name.toString().trim().length !== 0) {
+                person = new Person(name, birth, gender);
+                currentRanking = new Result(person, time, date, city, rank);
+                if (currentLeaderboard !== null) {
+                    currentLeaderboard.addResult(currentRanking);
+                }
+            } else { // Falls nicht, setze alle Informationen auf null
+                rank = null;
+                name = null;
+                time = null;
+                birth = null;
+                city = null;
+                date = null;
+            }
+        }
+        if (currentLeaderboard !== null) { // Falls eine Bestenliste vorhanden ist, füge sie zur Liste hinzu
+            LEADERBOARDS.addLeaderboard(currentLeaderboard);
+        }
+    }
+
+    class Filter {
+        /**
+         * Klasse für die Filterung der Bestenlisten nach Schwimmstil, Bahnlänge und Geschlecht
+         * @property {string} stroke - Schwimmstil (Freistil, Brust, Schmetterling, Rücken, Lagen)
+         * @property {string} lane - Bahnlänge (Kurzbahn, Langbahn)
+         * @property {string} gender - Geschlecht (Männlich, Weiblich)
+         */
+
+        constructor() {
+            this.stroke = STROKE.Freistil;
+            this.lane = LANE.Kurzbahn
+            this.gender = GENDER.Weiblich;
+        }
+    }
+
+    function createDropdownListeners() {
+        /**
+         * Die Funktion erstellt für jedes Dropdown-List-Element einen Event-Listener
+         */
+
+        let mobileSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--mobile-size'));
+
+        function functionUseFilter(filter) {
+            /**
+             * Funktion zum Anwenden des Filters
+             * @param {string} id - ID des Dropdown-List-Elements
+             * @param {String} filter - Filterkriterium
+             */
+            if (filter === 'Weiblich' || filter === 'Männlich') {
+                FILTER.gender = filter;
+            }
+            if (filter === 'Freistil' || filter === 'Rücken' || filter === 'Brust' || filter === 'Schmetterling' || filter === 'Lagen') {
+                FILTER.stroke = filter;
+            }
+            if (filter === 'Kurzbahn' || filter === 'Langbahn') {
+                FILTER.lane = filter;
+            }
+        }
+
+        // Event Listener für jedes dropdown-select Element
+        document.querySelectorAll('.dropdown-list__item').forEach(item => {
+            item.addEventListener('click', event => {
+                let dropdownItem = event.target;
+                let dropdownSelect = dropdownItem.parentElement.previousElementSibling;
+                let text = dropdownItem.textContent;
+                // Wende einen Filter für das Geschlecht an
+                functionUseFilter(text);
+                // Verberge die zugehörige dropdown-list
+                dropdownItem.parentElement.classList.remove('visible');
+                // Setze den Text des dropdown-select Elements auf den ausgewählten Wert
+                dropdownItem.parentElement.previousElementSibling.querySelector('span').textContent = text;
+                // Drehe auch das Icon um 180 Grad
+                dropdownItem.parentElement.previousElementSibling.querySelector('svg').classList.remove('rotated');
+                // Verberge die Dropdown-Liste
+                dropdownItem.parentElement.style.visibility = 'hidden';
+                dropdownItem.parentElement.style.opacity = '0';
+                // Lade die Bestenliste in die Tabelle
+                loadLeaderboardsIntoTable(LEADERBOARDS.filterLeaderboards(FILTER));
+            });
+        });
+
+        // Event Listener für jedes dropdown-select Element
+        document.querySelectorAll('.dropdown-select').forEach(item => {
+
+            item.addEventListener('click', event => {
+
+                let dropdownList = item.nextElementSibling;
+                // Finde das svg Icon im dropdown-select Element
+                let svg = item.querySelector('svg');
+                // Drehe das Icon um 180 Grad
+                svg.classList.toggle('rotated');
+
+                // Überprüfe, ob der User auf dem Handy ist
+                if (window.innerWidth <= mobileSize) {
+                    let id = dropdownList.id.slice(13);
+                    // Finde das zugehörige Popup overlay
+                    let popupOverlay = document.getElementById('popup' + id);
+                    // Mache das Popup-Overlay sichtbar
+                    if (popupOverlay.style.visibility === 'visible') {
+                        popupOverlay.style.visibility = 'hidden';
+                        popupOverlay.style.opacity = '0';
+                        setTimeout(() => {
+                            popupOverlay.style.display = 'none';
+                        }, 500);
+                    } else {
+                        popupOverlay.style.display = 'block';
+                        popupOverlay.style.visibility = 'hidden';
+                        popupOverlay.style.opacity = '0';
+                        // Warte 10ms, um den Browser Zeit zu geben, das Display-Attribut zu setzen
+                        setTimeout(() => {
+                            popupOverlay.style.visibility = 'visible';
+                            popupOverlay.style.opacity = '1';
+                        }, 10);
+                    }
+                }
+            });
+
+            // Event Listener, um Dropdown beim Hovern sichtbar zu machen
+            item.addEventListener('mouseenter', event => {
+                if (window.innerWidth > mobileSize) {
+                    let dropdownList = item.nextElementSibling;
+                    // Verberge alle anderen Dropdown-Listen
+                    document.querySelectorAll('.dropdown-list').forEach(list => {
+                        if (list !== dropdownList) {
+                            list.style.visibility = 'hidden';
+                            list.style.opacity = '0';
+                        }
+                    });
+                    if (dropdownList.style.visibility === 'visible') {
+                        dropdownList.style.visibility = 'hidden';
+                        dropdownList.style.opacity = '0';
+                    } else {
+                        dropdownList.style.visibility = 'visible';
+                        dropdownList.style.opacity = '1';
+                        let timeout = setTimeout(() => {
+                            // Überprüfe, ob der User gerade mit der Maus auf der Dropdown-Liste ist
+                            if (dropdownList.matches(':hover')) {
+                                clearTimeout(timeout);
+                            } else {
+                                dropdownList.style.visibility = 'hidden';
+                                dropdownList.style.opacity = '0';
+                            }
+                        }, 1500);
+                    }
+                }
+            });
+        });
+
+        /*
+        // Event Listener für jedes 'dropdown' ELement
+        document.querySelectorAll('.dropdown').forEach(item => {
+            item.addEventListener('mouseleave', event => {
+                if (window.innerWidth > mobileSize) {
+                    let dropdownList = item.querySelector('.dropdown-list');
+                    dropdownList.style.visibility = 'hidden';
+                    dropdownList.style.opacity = '0';
+                }
+            });
+        });
+         */
+
+        // Event Listener für Klicks auf dem Body
+        document.body.addEventListener('click', event => {
+            // Wenn der Klick nicht auf einem Dropdown-List-Element oder Dropdown-Select war, verberge alle Dropdown-Listen
+            if (!event.target.classList.contains('dropdown-list__item') && !event.target.classList.contains('dropdown-select')) {
+                document.querySelectorAll('.dropdown-list').forEach(list => {
+                    list.style.visibility = 'hidden';
+                    list.style.opacity = '0';
+                });
+            }
+        });
+
+        // EVent Listener für jedes Popup Item
+        document.querySelectorAll('.popup__item').forEach(item => {
+            item.addEventListener('click', event => {
+                let popupItem = event.target;
+                let text = popupItem.textContent;
+                let id = popupItem.parentElement.id.slice(5);
+                let popup = document.getElementById('popup' + id);
+                let dropdownSelect = document.getElementById('dropdown-select' + id);
+                let svg = dropdownSelect.querySelector('svg');
+                // Drehe das Icon um 180 Grad
+                svg.classList.toggle('rotated');
+                // Setze den Text des dropdown-select Elements auf den ausgewählten Wert
+                dropdownSelect.querySelector('span').textContent = text;
+                // Verberge das popup-overlay
+                popup.style.visibility = 'hidden';
+                popup.style.opacity = '0';
+                // Warte 500ms, um das popup-overlay zu verbergen
+                setTimeout(() => {
+                    popup.style.display = 'none';
+                }, 500);
+                // Lade die Bestenliste in die Tabelle
+                functionUseFilter(text);
+                loadLeaderboardsIntoTable(LEADERBOARDS.filterLeaderboards(FILTER));
+            });
+        });
+
+    }
+
+    function waitForDataAndLoad() {
+        /**
+         * Funktion zum Überwachen des LocalStorage auf neue Daten und Aktualisieren der Tabelle,
+         * sobald neue Daten im LocalStorage gefunden werden, wird die Tabelle aktualisiert
+         */
+
+        function checkForData(name, key) {
+            /**
+             * Funktion zum Überprüfen, ob die Daten im LocalStorage vorhanden sind
+             * @param {string} name - Name der Daten im LocalStorage
+             */
+            let data = localStorage.getItem(name);
+            if (data) {
+                extractLeaderboardsFromData(data, KEYS[key].gender, KEYS[key].stroke);
+                if (KEYS[key].gender === FILTER.gender && KEYS[key].stroke === FILTER.stroke) {
+                    loadLeaderboardsIntoTable(LEADERBOARDS.filterLeaderboards(FILTER));
+                }
+                return true;
+            }
+            return false;
+        }
+
+        // Überprüfe, ob die Daten schon ohne zu wartet vorhanden sind
+        for (let key in KEYS) {
+            let name = KEYS[key].key;
+            checkForData(name, key);
+        }
+
+        for (let key in KEYS) {
+            let name = KEYS[key].key;
+            // Überwachungsintervall in Millisekunden
+            let interval = 100;
+            let data = localStorage.getItem(name);
+
+            // Überprüfen, ob die Daten im LocalStorage verfügbar sind
+            let waitForData = setInterval(function () {
+                data = localStorage.getItem(name);
+                if (checkForData(name, key)) {
+                    clearInterval(waitForData);
+                }
+            }, interval);
+
+            // Aktualisierungsintervall für die regelmäßige Überprüfung des LocalStorage und Aktualisierung der Tabelle
+            interval = 2000;
+            setInterval(function () {
+                if (data !== localStorage.getItem(name)) {
+                    console.log("Neue Daten gefunden.");
+                    checkForData(name, key);
+                }
+            }, interval);
+        }
+    }
+
+    // Erstelle eine Instanz der Leaderboards-Klasse
+    let LEADERBOARDS = new Leaderboards();
+    // Erstelle eine Instanz der Filter-Klasse
+    let FILTER = new Filter();
+    // Keys für die vrschiedenen Daten aus dem LocalStorage
+    const KEYS = {
+        0: {
+            stroke: STROKE.Freistil,
+            gender: GENDER.Weiblich,
+            key: "freistilWeiblich"
+        },
+        1: {
+            stroke: STROKE.Freistil,
+            gender: GENDER.Maennlich,
+            key: "freistilMaennlich"
+        },
+        2: {
+            stroke: STROKE.Schmetterling,
+            gender: GENDER.Weiblich,
+            key: "schmetterlingWeiblich"
+        },
+        3: {
+            stroke: STROKE.Schmetterling,
+            gender: GENDER.Maennlich,
+            key: "schmetterlingMaennlich"
+        },
+        4: {
+            stroke: STROKE.Ruecken,
+            gender: GENDER.Weiblich,
+            key: "rueckenWeiblich"
+        },
+        5: {
+            stroke: STROKE.Ruecken,
+            gender: GENDER.Maennlich,
+            key: "rueckenMaennlich"
+        },
+        6: {
+            stroke: STROKE.Brust,
+            gender: GENDER.Weiblich,
+            key: "brustWeiblich"
+        },
+        7: {
+            stroke: STROKE.Brust,
+            gender: GENDER.Maennlich,
+            key: "brustMaennlich"
+        },
+        8: {
+            stroke: STROKE.Lagen,
+            gender: GENDER.Weiblich,
+            key: "lagenWeiblich"
+        },
+        9: {
+            stroke: STROKE.Lagen,
+            gender: GENDER.Maennlich,
+            key: "lagenMaennlich"
+        }
+    }
+    const KEYS_SEASON = {
+        0: {
+            stroke: STROKE.Freistil,
+            gender: GENDER.Weiblich,
+            key: "freistilWeiblichSaison"
+        },
+        1: {
+            stroke: STROKE.Freistil,
+            gender: GENDER.Maennlich,
+            key: "freistilMaennlichSaison"
+        },
+        2: {
+            stroke: STROKE.Schmetterling,
+            gender: GENDER.Weiblich,
+            key: "schmetterlingWeiblichSaison"
+        },
+        3: {
+            stroke: STROKE.Schmetterling,
+            gender: GENDER.Maennlich,
+            key: "schmetterlingMaennlichSaison"
+        },
+        4: {
+            stroke: STROKE.Ruecken,
+            gender: GENDER.Weiblich,
+            key: "rueckenWeiblichSaison"
+        },
+        5: {
+            stroke: STROKE.Ruecken,
+            gender: GENDER.Maennlich,
+            key: "rueckenMaennlichSaison"
+        },
+        6: {
+            stroke: STROKE.Brust,
+            gender: GENDER.Weiblich,
+            key: "brustWeiblichSaison"
+        },
+        7: {
+            stroke: STROKE.Brust,
+            gender: GENDER.Maennlich,
+            key: "brustMaennlichSaison"
+        },
+        8: {
+            stroke: STROKE.Lagen,
+            gender: GENDER.Weiblich,
+            key: "lagenWeiblichSaison"
+        },
+        9: {
+            stroke: STROKE.Lagen,
+            gender: GENDER.Maennlich,
+            key: "lagenMaennlichSaison"
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        /**
+         * Funktion zum Warten auf das DOMContentLoaded-Ereignis, um sicherzustellen, dass das Dokument vollständig geladen ist, bevor Funktionen ausgeführt werden,
+         * sobald das DOM vollständig geladen ist, wird die Funktion waitForDataAndLoad aufgerufen
+         */
+        // Daten im LocalStorage überwachen und dann updateTableFromLocalStorage aufrufen
+        waitForDataAndLoad();
+    });
+    createDropdownListeners(); // Erstelle Event-Listener für die Dropdown-Elemente
+
+    function fetchDataAndSaveToLocalStorage(tsvUrl, range, storageKey) {
+        /**
+         * Lade die Daten von der angegebenen TSV-URL und speichere sie im LocalStorage.
+         * @param {string} tsvUrl - Die URL des TSV-Dokuments
+         * @param {string} range - Der Bereich des TSV-Dokuments, der geladen werden soll
+         * @param {string} storageKey - Der Schlüssel, unter dem die Daten im LocalStorage gespeichert werden
+         */
+        return fetch(tsvUrl + '&range=' + range)
+            .then(response => response.text())
+            .then(data => {
+                localStorage.setItem(storageKey, data);
+            })
+            .catch(error => console.error('Fehler beim Laden der TSV-Daten:', error));
+    }
+
+    function saveDataToLocalStorage() {
+        /**
+         * Lade die Daten von der Google Sheet TSV-URL und speichere sie im LocalStorage.
+         * Die Daten werden in verschiedenen Bereichen des TSV-Dokuments gespeichert.
+         * Die Bereiche und die zugehörigen Schlüssel im LocalStorage sind in der dataMappings-Liste definiert.
+         */
+        let tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSMwxC7Lt2jmPudP3caTAR2tkKAwFXB_YTa4t-TxGX61cYzvaysZiX_4NoTAsDLaRsE85TZ4MfkUtmQ/pub?gid=0&single=true&output=tsv';
+
+        let dataMappings = [
+            {range: 'A4:F81', key: 'freistilWeiblich'},
+            {range: 'G4:L81', key: 'freistilMaennlich'},
+            {range: 'N4:S42', key: 'schmetterlingWeiblich'},
+            {range: 'T4:Y42', key: 'schmetterlingMaennlich'},
+            {range: 'N47:S85', key: 'rueckenWeiblich'},
+            {range: 'T47:Y85', key: 'rueckenMaennlich'},
+            {range: 'N90:S123', key: 'lagenWeiblich'},
+            {range: 'T90:Y123', key: 'lagenMaennlich'},
+            {range: 'A86:F124', key: 'brustWeiblich'},
+            {range: 'G86:L124', key: 'brustMaennlich'}
+        ];
+
+        let fetchPromises = dataMappings.map(mapping =>
+            fetchDataAndSaveToLocalStorage(tsvUrl, mapping.range, mapping.key)
+        );
+
+        // Warten, bis alle Fetch-Anforderungen abgeschlossen sind, bevor Sie fortfahren
+        Promise.all(fetchPromises)
+            .then(() => {
+                console.log('Alle Daten erfolgreich geladen und im LocalStorage gespeichert.');
+            })
+            .catch(error => console.error('Fehler beim Laden und Speichern der TSV-Daten:', error));
+    }
+
+    saveDataToLocalStorage(); // Rufe die Funktion zum Speichern der Daten im LocalStorage auf
+
+</script>
+</body>
+</html>
