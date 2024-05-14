@@ -3,8 +3,20 @@
  * Falls ja, werden die Dokumente in den entsprechenden Ordner verschoben und der neue Link wird in die Zelle geschrieben.
  */
 
-// Erstelle eine Map für die Jahre (Name des Sheets = Jahr) und die zugehörigen Ordner-IDs der Google Drive Folder
-const sheets = [
+const columns = {
+    /**
+     * Map für die Spalten der Kategorien (Name des Sheets = Spalte)
+     */
+    ausschreibung: 'D',
+    meldeergebnis: 'F',
+    protokoll: 'G'
+
+}
+
+const sheetsInfo = [
+    /**
+     * Map für die Jahre (Name des Sheets = Jahr) und die zugehörigen Ordner-IDs der Google Drive Folder
+     */
     {
         year: '2021',
         ids: {
@@ -47,27 +59,62 @@ const sheets = [
     },
 ]
 
-function main() {
+function onEdit(e) {
+    /**
+     * Die Funktion wird getriggert, sobald etwas im Dokument bearbeitet wird
+     * Es wird überprüft, ob es sich um eine Zelle handelt, in denen die Dokumente enthalten sind
+     * Falls ja, so wird das Dokument in den entsprechenden Ordner verschoben und der neue Link in die Zelle geschrieben
+     * @param {object} e - Das Event-Objekt
+     */
+
+    let year = e.range.getSheet().getName(); // Jahr des Tabellenblatts
+    let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(year); // Hole das Tabellenblatt basierend auf dem Namen des Sheets
+    let cell = e.range.getA1Notation(); // Zelle, die bearbeitet wurde
+    let column = cell.charAt(0); // Spalte der Zelle
+
+    // Überprüfe, ob die Zelle in einer der relevanten Spalten ist
+    if (column === columns.ausschreibung || column === columns.meldeergebnis || column === columns.protokoll) {
+        let folderId = getFolderId(year, column);
+        writeLinkToCell(sheet, cell, folderId);
+    }
+}
+
+function getFolderId(year, column) {
+    /**
+     * Hole die ID des Zielordners basierend auf dem Jahr und der Spalte
+     * @param {string} year - Das Jahr
+     * @param {string} column - Die Spalte
+     */
+
+    for (let sheetInfo of sheetsInfo) {
+        if (sheetInfo.year === year) {
+            if (column === columns.ausschreibung) return sheetInfo.ids.ausschreibung;
+            if (column === columns.meldeergebnis) return sheetInfo.ids.meldeergebnis;
+            if (column === columns.protokoll) return sheetInfo.ids.protokoll;
+            throw new Error('Spalte nicht gefunden');
+        }
+    }
+}
+
+function iterateOverSheets() {
     /**
      * Hauptfunktion
      * Iteriere über alle Tabellenblätter und rufe die Funktion iterateOverCells auf
      */
 
-    for (let sheet of sheets) {
-        let tabellenblatt = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet.year);
-        iterateOverCells(tabellenblatt, sheet.ids.ausschreibung, sheet.ids.meldeergebnis, sheet.ids.protokoll);
+    for (let sheetInfo of sheetsInfo) {
+        let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetInfo.year);
+        iterateOverColumns(sheet, sheetInfo);
     }
 }
 
 
-function iterateOverCells(tabellenblatt, ausschreibungID, meldeergebnisID, protokollID) {
+function iterateOverColumns(sheet, sheetInfo) {
     /**
      * Iteriere über alle Zeilen in der Tabelle und überprüfe, ob die relevanten Zellen ein neues Dokument enthalten.
      * Falls ja, wird das Dokument in den Zielordner verschoben und der neue Link in die Zelle geschrieben.
      * @param {object} tabellenblatt - Das Tabellenblatt
-     * @param {string} ausschreibungID - Die ID des Ordners für die Ausschreibungen
-     * @param {string} meldeergebnisID - Die ID des Ordners für die Meldeergebnisse
-     * @param {string} protokollID - Die ID des Ordners für die Protokolle
+     * @param {string} sheetInfo - Die Informationen des Tabellenblatts
      */
 
         // Die letzte Zeile, die überprüft werden soll
@@ -75,31 +122,14 @@ function iterateOverCells(tabellenblatt, ausschreibungID, meldeergebnisID, proto
 
     // Iteriere über alle Zeilen in der Tabelle (bis Zeile [lastCell])
     for (let i = 2; i < lastCell; ++i) {
-        // Setze die Zellen für die Kategorien fest
-        let ausschreibungenCell = 'D' + i;
-        let meldeergebnisseCell = 'F' + i;
-        let protokolleCell = 'G' + i;
-
-        // Überprüfe den Inhalt der Zellen
-        let ausschreibungen = String(tabellenblatt.getRange(ausschreibungenCell).getValue());
-        let meldeergebnisse = String(tabellenblatt.getRange(meldeergebnisseCell).getValue());
-        let protokolle = String(tabellenblatt.getRange(protokolleCell).getValue());
-drive
-        // Überprüfe für jede Zelle, ob sie einen neuen Inhalt erhalten soll
-        if (ausschreibungen !== '' && !ausschreibungen.includes('drive')) {
-            writeLinkToCell(tabellenblatt, ausschreibungenCell, ausschreibungID);
-        }
-        if (meldeergebnisse !== '' && !meldeergebnisse.includes('drive')) {
-            writeLinkToCell(tabellenblatt, meldeergebnisseCell, meldeergebnisID);
-        }
-        if (protokolle !== '' && !protokolle.includes('drive')) {
-            writeLinkToCell(tabellenblatt, protokolleCell, protokollID);
-        }
-
+        // Schreibe den Link in die Zelle
+        writeLinkToCell(sheet, 'D' + i, sheetInfo.ids.ausschreibung);
+        writeLinkToCell(sheet, 'F' + i, sheetInfo.ids.meldeergebnis);
+        writeLinkToCell(sheet, 'G' + i, sheetInfo.ids.protokoll);
     }
 }
 
-function writeLinkToCell(tabellenblatt, cell, folderId) {
+function writeLinkToCell(sheet, cell, folderId) {
     /**
      * Überprüfe, ob die Zelle einen Link zu einem neuen Dokument enthält.
      * Das Dokument wird in den Zielordner verschoben und der neue Link wird in die Zelle geschrieben.
@@ -108,8 +138,14 @@ function writeLinkToCell(tabellenblatt, cell, folderId) {
      * @param {string} folderId - Die ID des Zielordners
      */
 
-        // Extrahiere Drive Link
-    let link = String(tabellenblatt.getRange(cell).getRichTextValue().getLinkUrl());
+    let cellValue = sheet.getRange(cell).getValue(); // Extrahiere Zelleninhalt
+    // Wenn bereits ein Link in der Zelle ist, beende die Funktion
+    if (cellValue.includes('drive')) {
+        return;
+    }
+
+    // Extrahiere Drive Link
+    let link = String(sheet.getRange(cell).getRichTextValue().getLinkUrl());
 
     // Überprüfe, ob es sich um einen drive Link handelt, falls nicht, beende die Funktion
     if (!link.includes('drive')) {
@@ -123,14 +159,14 @@ function writeLinkToCell(tabellenblatt, cell, folderId) {
     link = moveFileToFolder(id, folderId);
 
     // Schreibe neuen Link in Zelle
-    let range = tabellenblatt.getRange(cell);
+    let range = sheet.getRange(cell);
     range.setValue(link); // Setze den Link als Inhalt der Zelle
     range.setFontColor('#252626'); // Schriftfarbe
     range.setFontLine('none'); // Entferne Unterstreichung
 }
 
 
-function moveFileToFolder(id, zielordnerID) {
+function moveFileToFolder(id, folderId) {
     /**
      * Verschiebe eine Datei in einen anderen Ordner und ändere die Freigabe auf öffentlich.
      * Die alte Datei wird gelöscht.
@@ -143,7 +179,7 @@ function moveFileToFolder(id, zielordnerID) {
     let file = DriveApp.getFileById(id);
 
     // Hole das Ordner-Objekt
-    let destinationFolder = DriveApp.getFolderById(zielordnerID);
+    let destinationFolder = DriveApp.getFolderById(folderId);
 
     // Verschiebe die Datei in den Zielordner
     let movedFile = destinationFolder.createFile(file.getBlob());
