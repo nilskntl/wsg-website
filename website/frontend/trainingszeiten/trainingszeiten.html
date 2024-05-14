@@ -1,0 +1,1858 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainingszeiten</title>
+    <style>
+
+        /* Definiere Variablen für die Farben */
+        :root {
+            --primary-color: #534666;
+            --primary-color-darker: #1f1a1a;
+            --color-text: #707a88;
+            --dark-grey: #2E2727;
+            --light-grey: #d1e5ef;
+            --background: #f5f6fa;
+            --header: #fbfbfc;
+            --white: #ffffff;
+            --table-radius: 24px;
+            --overlay-color: rgba(0, 0, 0, 0.7);
+        }
+
+        /* Einstelungen für den gesamten Body */
+        body {
+            max-width: 100%;
+            font-family: "Cambria", sans-serif;
+            background-color: var(--background);
+            padding: 10px;
+            cursor: default;
+        }
+
+        /* Allgemeine Formatierungen für Tabelle */
+        table {
+            max-width: 100%;
+            width: 100%;
+            table-layout: fixed;
+            line-height: 1.3;
+            border-collapse: collapse;
+            text-align: center;
+            overflow: hidden;
+            white-space: break-spaces;
+            font-size: 12px;
+        }
+
+        /* Allgemeine Formatierungen für Zellen */
+        th,
+        td {
+            height: 48px;
+            border: 1px solid var(--background);
+            color: var(--color-text);
+            vertical-align: top;
+            background-color: var(--white);
+            transition: background-color 0.5s;
+        }
+
+        /* Formatierungen für die Zellen und hovern */
+        td:hover {
+            background-color: var(--header);
+        }
+
+        /* Formatierung für die erste Spalte */
+        th:first-child {
+            width: 15%;
+        }
+
+        /* Formatierungen für Kopfzeile */
+        thead th {
+            height: 49px;
+            background-color: var(--header);
+            vertical-align: middle;
+            font-weight: normal;
+            transition: background-color 0.5s;
+        }
+
+        /* Formatierungen für die Kopfzeile und Hovern */
+        thead th:hover {
+            background-color: var(--light-grey);
+        }
+
+        /* Einstelungen für das Popup-Öffnen Icon */
+        #popup-icon {
+            position: absolute;
+            color: var(--color-text);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.8s, background-color 0.5s;
+        }
+
+        /* Einstellungen für das Popup-Icon beim Hovern */
+        #popup-icon:hover {
+            background-color: var(--light-grey);
+        }
+
+        /* Einstellungen für das Popup an sich */
+        #popup-content {
+            position: absolute;
+            opacity: 0;
+            visibility: hidden;
+            width: 50%;
+            height: auto;
+            background-color: var(--white);
+            border-radius: 24px;
+            box-shadow: 6px 6px 6px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.5s linear, visibility 0.5s linear;
+            padding: 20px;
+            pointer-events: auto;
+            z-index: 2000;
+        }
+
+        /* Einstellungen für das Popup Schließen Icon */
+        #popup-close {
+            cursor: pointer;
+            width: 48px;
+            /* Die Items innerhalb des Containers sollen genau zentral positioniert werden */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 48px;
+            padding: 0;
+            border-radius: 50%;
+            transition: background-color 0.5s;
+        }
+
+        /* Einstellungen für das Popup Schließen Icon (hovern) */
+        #popup-close:hover {
+            background-color: var(--light-grey);
+        }
+
+        /* Einstellungen für das Overlay das beim Öffnen des Popups über dem Bddy erscheint */
+        #popup-overlay {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.0);
+            transition: background-color 0.5s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        /* Einstellungen für den Header der Popup-Auswahl */
+        .popup-selection-header {
+            font-weight: bold;
+            color: var(--color-text);
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        /* Einstellungen für den Header des Popups */
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            align-content: center;
+            margin-bottom: 16px;
+        }
+
+        /* Einstellungen für den Text im Header */
+        #popup-text {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--white);
+            background-color: var(--primary-color);
+            opacity: 0.5;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 2px 2px 2px var(--primary-color);
+            width: 50%;
+            transition: background-color 0.3s linear, box-shadow 0.3s linear;
+        }
+
+        /* Einstellungen für den Text im Header und Hovern */
+        #popup-text:hover {
+            background-color: var(--primary-color-darker);
+            box-shadow: 2px 2px 2px var(--primary-color-darker);
+        }
+
+        .session {
+            text-align: center;
+            align-content: center;
+            line-height: 1.5;
+            font-size: 11px;
+            font-weight: normal;
+            position: absolute;
+            border-bottom-right-radius: 8px;
+            border-top-right-radius: 8px;
+            box-shadow: 2px 2px 2px;
+            transition: opacity 0.5s linear;
+        }
+
+        .mobile-session:hover {
+            opacity: 0.7;
+        }
+
+        .mobile-session {
+            text-align: center;
+            align-content: center;
+            line-height: 1.5;
+            font-size: 11px;
+            font-weight: normal;
+            border-bottom-right-radius: 8px;
+            border-top-right-radius: 8px;
+            box-shadow: 2px 2px 2px;
+            transition: opacity 0.5s linear;
+        }
+
+        .session:hover {
+            opacity: 0.7;
+        }
+
+        /* Formatierungen für den popup-body */
+        #popup-body {
+            display: flex;
+            justify-content: space-between;
+            gap: 32px;
+            padding: 16px;
+        }
+
+        #groups,
+        #days {
+            width: 50%;
+        }
+
+        /* Einstellungen für den Spacer */
+        .spacer {
+            color: var(--color-text);
+            margin-bottom: 8px;
+        }
+
+        .group-name {
+            font-weight: bold;
+            color: var(--dark-grey);
+        }
+
+        svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .checkmark-container {
+            display: flex;
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+            margin-top: 12px;
+            cursor: pointer;
+            font-size: 22px;
+            width: auto;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Hide the browser's default checkbox */
+        .checkmark-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        /* Create a custom checkbox */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 25px;
+            width: 25px;
+            background-color: var(--light-grey);
+            transition: background-color 0.3s linear;
+            border-radius: 15px;
+        }
+
+        /* On mouse-over, add a grey background color */
+        .checkmark-container:hover input ~ .checkmark {
+            background-color: var(--color-text);
+        }
+
+        /* When the checkbox is checked, add a background */
+        .checkmark-container input:checked ~ .checkmark {
+            background-color: var(--primary-color);
+            transition: background-color 0.3s linear;
+        }
+
+        /* Effect when checkbox is checked and hovered */
+        .checkmark-container input:checked:hover ~ .checkmark {
+            background-color: var(--primary-color-darker);
+            transition: background-color 0.3s linear;
+        }
+
+        /* Create the checkmark/indicator (hidden when not checked) */
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        /* Show the checkmark when checked */
+        .checkmark-container input:checked ~ .checkmark:after {
+            display: flex;
+        }
+
+        /* Style the checkmark/indicator */
+        .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+
+        #desktop {
+            display: block;
+        }
+
+        #mobile {
+            display: none;
+        }
+
+        /* Extra Einstellungen für Handy*/
+        @media only screen and (max-width: 600px) {
+
+            #mobile {
+                display: block;
+            }
+
+            #desktop {
+                display: none;
+            }
+
+            thead th {
+                font-size: 70%;
+            }
+
+            svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            #popup-content {
+                width: 80%;
+            }
+
+            #popup-text {
+                font-size: 70%;
+                padding: 4px 4px 4px 12px;
+            }
+
+            #groups-body,
+            #days-body {
+                font-size: 70%;
+            }
+
+            .popup-selection-header {
+                font-size: 70%;
+                width: 80%;
+            }
+
+            .checkmark-container {
+                font-size: 12px;
+            }
+
+            .checkmark {
+                height: 13px;
+                width: 13px;
+            }
+
+            .checkmark:after {
+                left: 4px;
+                top: 2px;
+                width: 2px;
+                height: 5px;
+            }
+
+            table {
+                font-size: 70%;
+            }
+
+            .session {
+                font-size: 70%;
+            }
+
+            /* Formatierung für die erste Spalte */
+            th:first-child {
+                width: 15%;
+            }
+        }
+
+    </style>
+</head>
+<!-- Der Body enthält die Tabelle, das Popup-Icon, das Popup-Overlay und das Popup-Content -->
+<body>
+
+<div id="mobile">
+
+</div>
+<div id="desktop">
+
+    <!-- Die eigentliche Tabelle -->
+    <table id="table">
+        <!-- Kopfzeile wird per js geladen -->
+        <thead id="table-header"></thead>
+        <!-- Body wird per js geladen -->
+        <tbody id="table-body"></tbody>
+    </table>
+
+    <!-- In dem Div-Container werden die Trainingszeiten angezeigt. Diese werden über der Tabelle eingeblendet -->
+    <div id="sessions"></div>
+
+    <!-- Das Icon zum Öffnen des Popups -->
+    <div id="popup-icon">
+    </div>
+    <!-- Das Overlay, das beim Öffnen des Popups über dem Body erscheint -->
+    <div id="popup-overlay">
+    </div>
+
+    <!-- Der Inhalt des Popups -->
+    <div id="popup-content">
+        <!-- Der Header des Popups -->
+        <div id="popup-header" class="popup-header">
+            <!-- Der Text des Headers -->
+            <div id="popup-text">
+                <!-- SVG mit einem Filter-Symbol -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffffff">
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+                </svg>
+                <!-- Text für den Header -->
+                <div>Filter</div>
+            </div>
+            <!-- Das Icon zum Schließen des Popups -->
+            <div id="popup-close">
+                <!-- SVG Icon mit einem Kreuz zum Schließen des Popups -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" width="32" height="32">
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M18.3 5.71a.996.996 0 0 0-1.41 0L12 10.59 7.11 5.7A.996.996 0 1 0 5.7 7.11L10.59 12 5.7 16.89a.996.996 0 1 0 1.41 1.41L12 13.41l4.89 4.89a.996.996 0 1 0 1.41-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Der Inhalt des Popups -->
+        <div id="popup-body">
+            <!-- Hier werden die Gruppen angezeigt -->
+            <div id="groups">
+                <!-- Der Header für die Gruppen -->
+                <div id="groups-header" class="popup-selection-header">Gruppen</div>
+                <!-- Horizontale Linie -->
+                <hr class="spacer">
+                <!-- Hier werden die Gruppen angezeigt -->
+                <div id="groups-body" class="popup-selection-body"></div>
+            </div>
+            <!-- Hier werden die Wochentage angezeigt -->
+            <div id="days">
+                <!-- Der Header für die Wochentage -->
+                <div id="days-header" class="popup-selection-header">Tage</div>
+                <!-- Horizontale Linie -->
+                <hr class="spacer">
+                <!-- Hier werden die Wochentage angezeigt -->
+                <div id="days-body" class="popup-selection-body"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    const DAY_OF_THE_WEEK = {
+        /**
+         * Konstanten für die Wochentage
+         */
+        0: 'Montag',
+        1: 'Dienstag',
+        2: 'Mittwoch',
+        3: 'Donnerstag',
+        4: 'Freitag',
+        5: 'Samstag',
+        6: 'Sonntag'
+    };
+
+    const TIME = {
+        /**
+         * Konstanten für die Uhrzeiten
+         * Die Schlüssel sind die Minuten seit Mitternacht und der Wert ist die Uhrzeit
+         * Die Uhrzeiten sind in 15-Minuten-Schritten
+         */
+        0: '00:00',
+        15: '00:15',
+        30: '00:30',
+        45: '00:45',
+        60: '01:00',
+        75: '01:15',
+        90: '01:30',
+        105: '01:45',
+        120: '02:00',
+        135: '02:15',
+        150: '02:30',
+        165: '02:45',
+        180: '03:00',
+        195: '03:15',
+        210: '03:30',
+        225: '03:45',
+        240: '04:00',
+        255: '04:15',
+        270: '04:30',
+        285: '04:45',
+        300: '05:00',
+        315: '05:15',
+        330: '05:30',
+        345: '05:45',
+        360: '06:00',
+        375: '06:15',
+        390: '06:30',
+        405: '06:45',
+        420: '07:00',
+        435: '07:15',
+        450: '07:30',
+        465: '07:45',
+        480: '08:00',
+        495: '08:15',
+        510: '08:30',
+        525: '08:45',
+        540: '09:00',
+        555: '09:15',
+        570: '09:30',
+        585: '09:45',
+        600: '10:00',
+        615: '10:15',
+        630: '10:30',
+        645: '10:45',
+        660: '11:00',
+        675: '11:15',
+        690: '11:30',
+        705: '11:45',
+        720: '12:00',
+        735: '12:15',
+        750: '12:30',
+        765: '12:45',
+        780: '13:00',
+        795: '13:15',
+        810: '13:30',
+        825: '13:45',
+        840: '14:00',
+        855: '14:15',
+        870: '14:30',
+        885: '14:45',
+        900: '15:00',
+        915: '15:15',
+        930: '15:30',
+        945: '15:45',
+        960: '16:00',
+        975: '16:15',
+        990: '16:30',
+        1005: '16:45',
+        1020: '17:00',
+        1035: '17:15',
+        1050: '17:30',
+        1065: '17:45',
+        1080: '18:00',
+        1095: '18:15',
+        1110: '18:30',
+        1125: '18:45',
+        1140: '19:00',
+        1155: '19:15',
+        1170: '19:30',
+        1185: '19:45',
+        1200: '20:00',
+        1215: '20:15',
+        1230: '20:30',
+        1245: '20:45',
+        1260: '21:00',
+        1275: '21:15',
+        1290: '21:30',
+        1305: '21:45',
+        1320: '22:00',
+        1335: '22:15',
+        1350: '22:30',
+        1365: '22:45',
+        1380: '23:00',
+        1395: '23:15',
+        1410: '23:30',
+        1425: '23:45',
+        1440: '00:00'
+    };
+
+    class Session {
+        /**
+         * Klasse für eine Trainingszeiteinheit
+         * Eine Einheit besteht aus einem Wochentag, einer Start- und einer Endzeit
+         */
+        constructor(day, start, end) {
+            this.id = Math.random().toString(36).substring(2, 9); // Eindeutige ID für die Einheit
+            this.day = day; // Wochentag
+            this.start = start; // Startzeit
+            this.end = end; // Endzeit
+            this.conflicts = []; // Array, das Konflikte mit anderen Einheiten speichert
+            this.conflictIndex = -1; // Gibt es mehrere Konflikte gibt der Index an an welcher Position (von links nach rechts) im Kalender die Einheit angezeigt werden soll.
+        }
+
+        get duration() {
+            /**
+             * Berechne die Dauer der Einheit in Minuten
+             * @type {number}
+             */
+            let startInMinutes = parseInt(this.start.split(':')[0]) * 60 + parseInt(this.start.split(':')[1]);
+            let endInMinutes = parseInt(this.end.split(':')[0]) * 60 + parseInt(this.end.split(':')[1]);
+            return endInMinutes - startInMinutes;
+        }
+
+        get startTimeInMinutes() {
+            /**
+             * Berechne die Startzeit der Einheit in Minuten seit Mitternacht
+             * @type {number}
+             */
+            return parseInt(this.start.split(':')[0]) * 60 + parseInt(this.start.split(':')[1]);
+        }
+
+        get endTimeInMinutes() {
+            /**
+             * Berechne die Endzeit der Einheit in Minuten seit Mitternacht
+             * @type {number}
+             */
+            return parseInt(this.end.split(':')[0]) * 60 + parseInt(this.end.split(':')[1]);
+        }
+
+        get cellIndex() {
+            /**
+             * Gibt den Index der Zelle (Wochentag) zurück, in der die Einheit angezeigt werden soll
+             * Da einige Wochentage ausgeblendet sein könnten unterscheidet sich dieser von indexOfDay()
+             * @type {number}
+             */
+            let index = this.indexOfDay;
+            let indexOfDayInArray = FILTERED_DAYS.indexOf(this.day);
+            return index - (index - indexOfDayInArray);
+        }
+
+        get indexOfDay() {
+            /**
+             * Gibt den Index des Wochentags zurück
+             * Der Index beginnt bei 0 für Montag und endet bei 6 für Sonntag
+             * @type {number}
+             */
+            if (this.day === DAY_OF_THE_WEEK["0"]) {
+                return 0;
+            } else if (this.day === DAY_OF_THE_WEEK["1"]) {
+                return 1;
+            } else if (this.day === DAY_OF_THE_WEEK["2"]) {
+                return 2;
+            } else if (this.day === DAY_OF_THE_WEEK["3"]) {
+                return 3;
+            } else if (this.day === DAY_OF_THE_WEEK["4"]) {
+                return 4;
+            } else if (this.day === DAY_OF_THE_WEEK["5"]) {
+                return 5;
+            } else if (this.day === DAY_OF_THE_WEEK["6"]) {
+                return 6;
+            }
+            return 7;
+        }
+
+        addConflict(conflict) {
+            /**
+             * Füge einen zeitlichen Konflikt mit einer anderen Einheit hinzu
+             * @param conflict - Einheit, die einen Konflikt mit dieser Einheit hat
+             * @returns {boolean} - Gibt zurück, ob der Konflikt hinzugefügt wurde
+             */
+            if (this.conflicts.includes(conflict) || conflict.toString() === this.toString()) {
+                return false;
+            }
+            this.conflicts.push(conflict);
+            return true;
+        }
+
+        toString() {
+            /**
+             * Gibt die Einheit als String zurück
+             * Jede Einheit hat eine eindeutige Id
+             */
+            return this.id;
+        }
+    }
+
+    class Group {
+        /**
+         * Klasse für eine Gruppe mit Trainingszeiten
+         */
+        constructor(name, numSessions, coach, sessions) {
+            this.name = name; // Name der Gruppe
+            this.numSessions = numSessions; // Anzahl der Einheiten pro Woche
+            this.coach = coach; // Name(n) des/der Trainer(s)
+            this.sessions = sessions; // Array von Einheiten
+            this.color = 'black'; // Farbe für die Gruppe. Diese wird automatisch zugewiesen
+            this.contrastColor = 'white'; // Kontrastfarbe für den Text
+        }
+
+        get schedule() {
+            /**
+             * Gibt den Trainingsplan der Gruppe als String zurück
+             * @type {string}
+             */
+            let schedule = '';
+            for (let i = 0; i < this.sessions.length; i++) {
+                schedule += this.sessions[i].toString();
+                if (i < this.sessions.length - 1) {
+                    schedule += ', ';
+                }
+            }
+            return schedule;
+        }
+
+        toString() {
+            /**
+             * Gibt die Gruppe als String zurück
+             */
+            return this.name + '\t' + this.schedule;
+        }
+    }
+
+    class Groups {
+        /**
+         * Klasse für mehrere Gruppen
+         */
+        constructor() {
+            this.groups = [];
+            this.filteredGroups = [];
+            this.sessions = [];
+            this.filteredSessions = [];
+            this.selectorContainer = document.createElement('div');
+            let groupsBody = document.getElementById('groups-body');
+            while (groupsBody.firstChild) {
+                groupsBody.removeChild(groupsBody.firstChild);
+            }
+            document.getElementById('groups-body').appendChild(this.selectorContainer);
+        }
+
+        colors = {
+            "0": ["rgba(84, 70, 103, 0.3)", false],
+            "1": ["rgba(19, 128, 134, 0.3)", false],
+            "2": ["rgba(220, 134, 101, 0.3)", false],
+            "3": ["rgba(19, 128, 134, 0.3)", false],
+            "4": ["rgba(238, 180, 98, 0.3)", false],
+            "5": ["rgba(84, 70, 103, 0.3)", false],
+            "6": ["rgba(205, 118, 114, 0.3)", false],
+            "7": ["rgba(220, 134, 101, 0.3)", false],
+            "8": ["rgba(205, 118, 114, 0.3)", false],
+            "9": ["rgba(238,180,98, 0.3)", false],
+            "10": ["rgba(84, 70, 103, 0.3)", false],
+        }
+
+        get earliestSession() {
+            /**
+             * Gibt die früheste Einheit zurück
+             * @returns {null|Session} - Gibt die früheste Einheit zurück oder null, wenn keine Einheiten vorhanden sind
+             */
+            if (this.sessions.length === 0) {
+                return null;
+            }
+            let earliestSession = this.sessions[0];
+            for (let i = 1; i < this.sessions.length; i++) {
+                if (this.sessions[i].startTimeInMinutes < earliestSession.startTimeInMinutes) {
+                    earliestSession = this.sessions[i];
+                }
+            }
+            return earliestSession;
+        }
+
+        get latestSession() {
+            /**
+             * Gibt die späteste Einheit zurück
+             * @returns {null|Session} - Gibt die späteste Einheit zurück oder null, wenn keine Einheiten vorhanden sind
+             */
+            if (this.sessions.length === 0) {
+                return null;
+            }
+            let latestSession = this.sessions[0];
+            for (let i = 1; i < this.sessions.length; i++) {
+                if (this.sessions[i].endTimeInMinutes > latestSession.endTimeInMinutes) {
+                    latestSession = this.sessions[i];
+                }
+            }
+            return latestSession;
+        }
+
+        get startIndex() {
+            /**
+             * Gibt den Index der frühesten Einheit (TIME) zurück
+             * @returns {number} - Gibt den Index (TIME) der frühesten Einheit zurück
+             */
+            let earliestTime = this.earliestSession.startTimeInMinutes;
+            if (earliestTime > 15) {
+                earliestTime -= 15;
+            } else {
+                earliestTime = 0;
+            }
+            let startIndex = earliestTime / 15;
+            // Wenn der startIndex nicht durch 2 teilbar ist, dann erhöhe ihn um 1
+            if (startIndex % 2 !== 0 && startIndex < 96) {
+                startIndex++;
+            }
+            return startIndex;
+        }
+
+        get endIndex() {
+            /**
+             * Gibt den Index der spätesten Einheit (TIME) zurück
+             * @returns {number} - Gibt den Index (TIME) der spätesten Einheit zurück
+             */
+            let latestTime = this.latestSession.endTimeInMinutes;
+            if (latestTime <= 1425) {
+                latestTime += 15;
+            } else {
+                latestTime = 1440;
+            }
+            let endIndex = latestTime / 15;
+            // Wenn der endIndex nicht durch 2 teilbar ist, dann erniedrige ihn um 1
+            if (endIndex % 2 !== 0 && endIndex < 96) {
+                endIndex--;
+            }
+            return endIndex;
+        }
+
+        addGroup(group) {
+            /**
+             * Füge eine Gruppe hinzu
+             * @param group - Gruppe, die hinzugefügt werden soll
+             */
+
+            if (!this.groups.includes(group)) {
+                // Generiere eine Farbe für die Gruppe
+                let color = '';
+                for (let key in this.colors) {
+                    if (!this.colors[key][1]) {
+                        color = this.colors[key][0];
+                        this.colors[key][1] = true;
+                        break;
+                    }
+                }
+                group.color = color; // Setze die Farbe für die Gruppe
+                group.contrastColor = getDarkerColor(color, 0.4); // Setze die Kontrastfarbe
+
+                // Füge die Gruppe hinzu
+                this.groups.push(group);
+                this.filteredGroups.push(group);
+                this.#addSessions(group);
+                this.#addSelector(group);
+            }
+        }
+
+        removeGroup(group) {
+            /**
+             * Entferne eine Gruppe
+             * @param group - Gruppe, die entfernt werden soll
+             */
+            let index = this.groups.indexOf(group);
+            if (index > -1) {
+                this.groups.splice(index, 1);
+            }
+            let index2 = this.filteredGroups.indexOf(group);
+            if (index2 > -1) {
+                this.filteredGroups.splice(index2, 1);
+            }
+            this.#removeSessions(group);
+            this.#removeSelector(group);
+        }
+
+        addToFilteredGroups(group) {
+            /**
+             * Füge eine Gruppe zu den aktuellen Gruppen hinzu
+             * @param group - Gruppe, die hinzugefügt werden soll
+             */
+            if (!this.filteredGroups.includes(group)) {
+                this.filteredGroups.push(group);
+            }
+            this.#addToFilteredSessions(group);
+        }
+
+        removeFromFilteredGroups(group) {
+            /**
+             * Entferne eine Gruppe aus den aktuellen Gruppen
+             * @param group - Gruppe, die entfernt werden soll
+             */
+            let index = this.filteredGroups.indexOf(group);
+            if (index > -1) {
+                this.filteredGroups.splice(index, 1);
+            }
+            this.#removeFromFilteredSessions(group);
+        }
+
+        #addSessions(group) {
+            /**
+             * Füge alle Trainingszeiten einer Gruppe hinzu
+             * @param group - Gruppe, deren Trainingszeiten hinzugefügt werden sollen
+             */
+            for (let i = 0; i < group.sessions.length; i++) {
+                if (!this.sessions.includes(group.sessions[i])) {
+                    this.sessions.push(group.sessions[i]);
+                }
+            }
+            this.#sortSessions(this.sessions);
+            this.#addToFilteredSessions(group);
+        }
+
+        #removeSessions(group) {
+            /**
+             * Entferne alle Trainingszeiten einer Gruppe
+             * @param group - Gruppe, deren Trainingszeiten entfernt werden sollen
+             */
+            for (let i = 0; i < group.sessions.length; i++) {
+                let index = this.sessions.indexOf(group.sessions[i]);
+                if (index > -1) {
+                    this.sessions.splice(index, 1);
+                }
+            }
+            this.#sortSessions(this.sessions);
+            this.#removeFromFilteredSessions(group);
+        }
+
+        #addToFilteredSessions(group) {
+            /**
+             * Füge die Trainingszeiten einer Gruppe zu den aktuellen Trainingszeiten hinzu
+             * @param group - Gruppe, deren Trainingszeiten hinzugefügt werden sollen
+             */
+            for (let i = 0; i < group.sessions.length; i++) {
+                if (!this.filteredSessions.includes(group.sessions[i])) {
+                    this.filteredSessions.push(group.sessions[i]);
+                }
+            }
+            this.#sortSessions(this.filteredSessions);
+            this.#removeConflicts();
+            this.#searchConflicts();
+        }
+
+        #removeFromFilteredSessions(group) {
+            /**
+             * Entferne die Trainingszeiten einer Gruppe aus den aktuellen Trainingszeiten
+             * @param group - Gruppe, deren Trainingszeiten entfernt werden sollen
+             */
+            for (let i = 0; i < group.sessions.length; i++) {
+                let index = this.filteredSessions.indexOf(group.sessions[i]);
+                if (index > -1) {
+                    this.filteredSessions.splice(index, 1);
+                }
+            }
+            this.#sortSessions(this.filteredSessions);
+            this.#removeConflicts();
+            this.#searchConflicts();
+        }
+
+        #clearSessions() {
+            /**
+             * Lösche alle Trainingszeiten
+             */
+            this.sessions = [];
+            this.filteredSessions = [];
+        }
+
+        #sortSessions(sessions) {
+            /**
+             * Sortiere alle Einheiten nach Startzeit und Tag
+             */
+            sessions.sort((a, b) => {
+                if (a.indexOfDay === b.indexOfDay) {
+                    if (a.startTimeInMinutes === b.startTimeInMinutes) {
+                        return a.end - b.end;
+                    }
+                    return a.startTimeInMinutes - b.startTimeInMinutes;
+                }
+                return a.indexOfDay - b.indexOfDay;
+            });
+            return sessions;
+        }
+
+        #addSelector(group) {
+            /**
+             * Funktion zum Hinzufügen eines Selektors für die Gruppen
+             * @param group - Gruppe, für die der Selektor hinzugefügt werden soll
+             */
+            let selector = document.createElement('label');
+            selector.className = 'checkmark-container';
+            selector.innerText = group.name;
+            selector.id = 'checkmark-' + group.name;
+
+            let checkbox = document.createElement('input');
+            checkbox.checked = true;
+            checkbox.type = 'checkbox';
+            selector.appendChild(checkbox);
+
+            let groupName = document.createElement('span');
+            groupName.className = 'checkmark';
+            selector.appendChild(groupName);
+            groupName.style.backgroundColor = group.color;
+
+            this.selectorContainer.appendChild(selector);
+
+            checkbox.addEventListener('change', function () {
+                /**
+                 * Eventlistener für das Ändern des Checkbox-Status
+                 * Wenn die Checkbox aktiviert ist, wird die Gruppe hinzugefügt, andernfalls entfernt
+                 * @param event - Event, das ausgelöst wird, wenn die Checkbox geändert wird
+                 * @returns {boolean} - Gibt zurück, ob die Gruppe hinzugefügt oder entfernt wurde
+                 */
+                if (!checkbox.checked) {
+                    groupName.style.backgroundColor = 'var(--light-grey)';
+                    GROUPS.removeFromFilteredGroups(group);
+                    addGroupsToTable();
+                    createMobileCalender();
+                } else {
+                    groupName.style.backgroundColor = group.color;
+                    GROUPS.addToFilteredGroups(group);
+                    addGroupsToTable();
+                    createMobileCalender();
+                }
+            });
+
+            selector.addEventListener('mouseover', function () {
+                if (checkbox.checked) {
+                    groupName.style.backgroundColor = group.contrastColor;
+                }
+            });
+
+            selector.addEventListener('mouseout', function () {
+                if (checkbox.checked) {
+                    groupName.style.backgroundColor = group.color;
+                }
+            });
+        }
+
+        #removeSelector(group) {
+            /**
+             * Funktion zum Entfernen eines Selektors für die Gruppen
+             * @param group - Gruppe, für die der Selektor entfernt werden soll
+             */
+            let selector = document.getElementById('selector-' + group.name);
+            if (selector) {
+                selector.remove();
+            }
+        }
+
+        #removeConflicts() {
+            /**
+             * Setze den Konfliktindex für jede Einheit zurück und entferne alle Konflikte
+             * @param groups - Array von Gruppen
+             */
+            for (let i = 0; i < this.filteredGroups.length; i++) {
+                for (let j = 0; j < this.filteredGroups[i].sessions.length; j++) {
+                    this.filteredGroups[i].sessions[j].conflicts = [];
+                    this.filteredGroups[i].sessions[j].conflictIndex = -1;
+                }
+            }
+        }
+
+        #searchConflicts() {
+            /**
+             * Funktion zum Suchen von Konflikten zwischen Einheiten
+             */
+
+            // Überprüfe, ob sich Einheiten überschneiden
+            for (let i = 0; i < this.filteredSessions.length; i++) {
+                for (let j = i + 1; j < this.filteredSessions.length; j++) {
+                    if (this.filteredSessions[i].day === this.filteredSessions[j].day) {
+                        if (this.filteredSessions[i].startTimeInMinutes < this.filteredSessions[j].endTimeInMinutes && this.filteredSessions[i].endTimeInMinutes > this.filteredSessions[j].startTimeInMinutes) {
+                            this.filteredSessions[i].addConflict(this.filteredSessions[j])
+                            this.filteredSessions[j].addConflict(this.filteredSessions[i])
+                        }
+                    }
+                }
+            }
+
+            // Gehe über alle Einheiten und füge Konflikte über zwei Ebenen hinzu
+            // Solange mindestens ein Konflikt hinzugefügt wurde, füge weitere Konflikte hinzu
+            let added = 1;
+            while (added > 0) {
+                added = 0;
+                for (let i = 0; i < this.filteredSessions.length; i++) {
+                    for (let j = 0; j < this.filteredSessions[i].conflicts.length; j++) {
+                        const conflict = this.filteredSessions[i].conflicts[j];
+                        for (let k = 0; k < conflict.conflicts.length; k++) {
+                            const subConflict = conflict.conflicts[k];
+                            if (this.filteredSessions[i].addConflict(subConflict)) {
+                                added++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Setze den Konfliktindex für jede Einheit
+            for (let i = 0; i < this.filteredSessions.length; i++) {
+                if (this.filteredSessions[i].conflictIndex !== -1) {
+                    continue;
+                }
+                let index = 0;
+                this.filteredSessions[i].conflictIndex = index;
+                // Setze der Reihe nach für alle Konflikte den Konfliktindex
+                for (let conflict of this.filteredSessions[i].conflicts) {
+                    index++;
+                    for (let j = 0; j < this.filteredSessions.length; j++) {
+                        if (this.filteredSessions[j].toString() === conflict.toString()) {
+                            this.filteredSessions[j].conflictIndex = index;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        toString() {
+            /**
+             * Gibt die Gruppen als String zurück
+             */
+            return this.groups.toString();
+        }
+    }
+
+    function getDarkerColor(color, percent) {
+        /**
+         * Funktion zum Verdunkeln einer Farbe um einen bestimmten Prozentsatz
+         * Generated with GPT 3.5
+         * @param color - Farbe, die verdunkelt werden soll (als Hexadezimalzahl)
+         * @param percent - Prozentsatz, um den die Farbe verdunkelt werden soll
+         * @returns {string} - Die verdunkelte Farbe als Hexadezimalzahl
+         */
+
+        function rgbaToHex(rgba) {
+            /**
+             * Funktion zum Konvertieren einer RGBA-Farbe in eine Hexadezimalzahl
+             * @param rgba - Farbe im RGBA-Format
+             * @returns {string} - Farbe im Hexadezimalformat
+             */
+                // Entferne das führende 'rgba(' und das abschließende ')'
+            let rgbaValues = rgba.substring(5, rgba.length - 1).split(',');
+
+            // Extrahiere die RGB-Komponenten
+            let r = parseInt(rgbaValues[0].trim());
+            let g = parseInt(rgbaValues[1].trim());
+            let b = parseInt(rgbaValues[2].trim());
+
+            // Konvertiere RGB in Hexadezimalformat und gib es zurück
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+
+        function rgbToHsl(r, g, b) {
+            /**
+             * Funktion zum Konvertieren einer RGB-Farbe in eine HSL-Farbe
+             * @param r - Rotanteil der Farbe
+             * @param g - Grünanteil der Farbe
+             * @param b - Blauanteil der Farbe
+             * @returns {number[]} - HSL-Farbe
+             */
+            r /= 255, g /= 255, b /= 255;
+            let max = Math.max(r, g, b);
+            let min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0; // achromatic
+            } else {
+                let d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r:
+                        h = (g - b) / d + (g < b ? 6 : 0);
+                        break;
+                    case g:
+                        h = (b - r) / d + 2;
+                        break;
+                    case b:
+                        h = (r - g) / d + 4;
+                        break;
+                }
+                h /= 6;
+            }
+
+            return [h, s, l];
+        }
+
+        function hslToRgb(h, s, l) {
+            /**
+             * Funktion zum Konvertieren einer HSL-Farbe in eine RGB-Farbe
+             * @param h - Farbton
+             * @param s - Sättigung
+             * @param l - Helligkeit
+             * @returns {number[]} - RGB-Farbe
+             */
+            let r, g, b;
+
+            if (s === 0) {
+                r = g = b = l; // achromatic
+            } else {
+                function hue2rgb(p, q, t) {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1 / 6) return p + (q - p) * 6 * t;
+                    if (t < 1 / 2) return q;
+                    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                    return p;
+                }
+
+                let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                let p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1 / 3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1 / 3);
+            }
+
+            return [r * 255, g * 255, b * 255];
+        }
+
+        color = rgbaToHex(color);
+
+        // Entferne eventuelles führendes '#' Zeichen
+        color = color.replace('#', '');
+
+        // Zerlege die Farbe in ihre RGB-Komponenten
+        let r = parseInt(color.substring(0, 2), 16);
+        let g = parseInt(color.substring(2, 4), 16);
+        let b = parseInt(color.substring(4, 6), 16);
+
+        // Konvertiere RGB in HSL
+        let hsl = rgbToHsl(r, g, b);
+
+        // Verringere die Helligkeit um den Prozentsatz
+        hsl[2] *= (1 - percent);
+
+        // Konvertiere HSL zurück in RGB
+        let rgb = hslToRgb(hsl[0], hsl[1], hsl[2]);
+
+        // Formatieren Sie die RGB-Werte als Hexadezimalzahl und geben Sie sie zurück
+        return '#' + rgb.map(function (x) {
+            return ('0' + Math.round(x).toString(16)).slice(-2);
+        }).join('');
+    }
+
+    let popupCreated = false; // Gibt an, ob das Popup bereits erstellt wurde
+    function createPopup() {
+        /**
+         * Funktion zum Erstellen des Popups
+         */
+
+        if (popupCreated) return; // Wenn das Popup bereits erstellt wurde, breche ab
+
+        function createFilterPopup() {
+            /**
+             * Funktion zum Erstellen des Filter-Popups
+             */
+
+            let filterPopup = document.getElementById('popup-content'); // Popup-Container
+            let table = document.getElementById('table'); // Tabelle
+            let tableHeader = document.getElementById('table-header'); // Kopfzeile der Tabelle
+            let filterIcon = document.getElementById('popup-icon'); // Filter-Icon
+
+            filterPopup.style.top = table.offsetTop + table.offsetHeight / 2 - filterPopup.offsetHeight / 2 + 'px'; // Position des Popups
+            filterPopup.style.left = table.offsetLeft + table.offsetWidth / 2 - filterPopup.offsetWidth / 2 + 'px'; // Position des Popups
+
+            // Bestimme die Position und Größe des Filter-Icons
+            let cell = tableHeader.rows[0].cells[0];
+            let filterIconSize = 32;
+            if (cell.offsetWidth < filterIconSize) filterIconSize = cell.offsetWidth - 4;
+
+            // Setze die Größe und Position des Filter-Icons
+            filterIcon.style.width = filterIconSize + 'px';
+            filterIcon.style.height = filterIconSize + 'px';
+            filterIcon.style.top = cell.offsetTop + cell.offsetHeight - filterIconSize / 2 - 8 + 'px';
+            filterIcon.style.left = cell.offsetLeft + 16 + cell.offsetWidth / 2 - filterIconSize / 2 + 'px';
+
+            // Rufe die background Farbe aus :root ab
+            let textColor = getComputedStyle(document.documentElement).getPropertyValue('--colorText');
+
+            // Lege als Inhalt des Filter-Icons ein Filter Icon (Schieberegler) fest
+            filterIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill=' + textColor +
+                ' width="24px" height="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>';
+        }
+
+        function createDayFilter() {
+            let dayContainer = document.getElementById('days-body');
+
+            for (let i = 0; i < Object.keys(DAY_OF_THE_WEEK).length; i++) {
+                let selector = document.createElement('label');
+                selector.className = 'checkmark-container';
+                selector.innerText = DAY_OF_THE_WEEK[i];
+                selector.id = 'checkmark-' + DAY_OF_THE_WEEK[i];
+
+                let checkbox = document.createElement('input');
+                if (i < Object.keys(DAY_OF_THE_WEEK).length - 2) checkbox.checked = true;
+                checkbox.type = 'checkbox';
+                selector.appendChild(checkbox);
+
+                let dayName = document.createElement('span');
+                dayName.className = 'checkmark';
+                selector.appendChild(dayName);
+
+                dayContainer.appendChild(selector);
+
+                checkbox.addEventListener('change', function () {
+                    /**
+                     * Eventlistener für das Ändern des Checkbox-Status
+                     * Wenn die Checkbox aktiviert ist, wird die Gruppe hinzugefügt, andernfalls entfernt
+                     * @param event - Event, das ausgelöst wird, wenn die Checkbox geändert wird
+                     * @returns {boolean} - Gibt zurück, ob die Gruppe hinzugefügt oder entfernt wurde
+                     */
+                    if (!checkbox.checked) {
+                        removeDay(DAY_OF_THE_WEEK[i]);
+                    } else {
+                        addDay(DAY_OF_THE_WEEK[i]);
+                    }
+                });
+            }
+        }
+
+        let daysBody = document.getElementById('days-body');
+        while (daysBody.firstChild) {
+            daysBody.removeChild(daysBody.firstChild);
+        }
+
+        createDayFilter(); // Erstelle die Wochentags-Filter
+        createFilterPopup(); // Erstelle das Filter-Popup
+        popupCreated = true; // Setze die Variable auf true
+    }
+
+    function createTable() {
+        /**
+         * Erstelle die Tabelle mit den Trainingszeiten
+         * @param weekdays - Array mit den ausgewählten Wochentagen
+         */
+
+        if (GROUPS.groups.length === 0 || FILTERED_DAYS.length === 0) {
+            return; // Wenn keine Gruppen vorhanden sind oder keine Wochentage ausgewählt wurden, breche ab
+        }
+
+        function createTableHeader() {
+            /**
+             * Erstelle die Kopfzeile der Tabelle
+             */
+
+            let tableHeader = document.getElementById('table-header'); // Kopfzeile der Tabelle
+
+            // Lösche den Inhalt des Table Header
+            while (tableHeader.firstChild) {
+                tableHeader.removeChild(tableHeader.firstChild);
+            }
+
+            let headerRow = document.createElement('tr'); // Erstelle eine neue Zeile für die Kopfzeile
+            // Füge jede Zelle der Kopfzeile hinzu
+            for (let i = 0; i < FILTERED_DAYS.length + 1; i++) {
+                let headerCell = document.createElement('th'); // Erstelle eine neue Zelle für die Kopfzeile
+                if (i === 0) {
+                    // Wenn es sich um die erste Zelle handelt, setze die Hintergrundfarbe und entferne den Rand
+                    headerCell.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--background');
+                    headerCell.style.border = 'none';
+                } else {
+                    // Setze den Border Radius für die oberen Ecken
+                    if (i === 1) headerCell.style.borderTopLeftRadius = getComputedStyle(document.documentElement).getPropertyValue('--table-radius');
+                    if (i === FILTERED_DAYS.length) headerCell.style.borderTopRightRadius = getComputedStyle(document.documentElement).getPropertyValue('--table-radius');
+                    // Setze den Titel für die Zelle
+                    headerCell.textContent = FILTERED_DAYS[i - 1];
+                }
+                // Füge die Zelle zur Kopfzeile hinzu
+                headerRow.appendChild(headerCell);
+            }
+            tableHeader.appendChild(headerRow); // Füge die Kopfzeile zur Tabelle hinzu
+        }
+
+        function createTableBody() {
+            /**
+             * Erstelle den Body der Tabelle
+             */
+
+            let tableBody = document.getElementById('table-body'); // Body der Tabelle
+
+            // Lösche den Inhalt des Table Body
+            while (tableBody.firstChild) {
+                tableBody.removeChild(tableBody.firstChild);
+            }
+
+            let startIndex = GROUPS.startIndex; // Start Index (TIME)
+            let endIndex = GROUPS.endIndex; // End Index (TIME)
+
+            for (let i = startIndex; i < endIndex; i++) {
+                /**
+                 * Erstelle die Zeilen für die Tabelle. Fange bei der Startzeit an und höre bei der Endzeit auf
+                 */
+
+                let row = document.createElement('tr'); // Neue Reihe
+                let cells = []; // Speichere die Zellen für eine Zeile in einem Array
+                for (let j = 0; j < FILTERED_DAYS.length + 1; j++) {
+                    /**
+                     * Erstelle 8 Zellen für die Zeile (Zeit und 7 Wochentage)
+                     */
+
+                    let cell = document.createElement('td'); // Neue Zelle
+                    if (j === 0) {
+                        cell.textContent = TIME[i * 15] + ' - ' + TIME[((i + 2) % 96) * 15]; // Setze die Zeit in die Zelle (30 Minuten pro Einheit)
+                        cell.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--background'); // Hintergrundfarbe
+                        cell.style.border = 'none'; // Kein Rand
+                    }
+                    // Für unten links und unten rechts abgerundete Ecken
+                    if (i === endIndex - 1 && j === 1) cell.style.borderBottomLeftRadius = getComputedStyle(document.documentElement).getPropertyValue('--table-radius');
+                    if (i === endIndex - 1 && j === FILTERED_DAYS.length) cell.style.borderBottomRightRadius = getComputedStyle(document.documentElement).getPropertyValue('--table-radius');
+
+                    // Füge die Zelle zur Tabelle hinzu
+                    if (j !== 0 || i % 2 === 0) {
+                        cells.push(cell);
+                        row.appendChild(cell);
+                    }
+                }
+                tableBody.appendChild(row); // Füge die ganze Reihe zur Tabelle hinzu
+                if (i % 2 === 0) tableBody.rows[i - startIndex].cells[0].rowSpan = 2; // Merge die zwei Zellen für die Zeit
+            }
+        }
+
+        createTableHeader(); // Erstelle die Kopfzeile
+        createTableBody(); // Erstelle den Body
+    }
+
+    function addGroupsToTable() {
+        /**
+         * Füge die Gruppen zur Tabelle hinzu
+         * Es werden nur die Trainingseinheiten hinzugefügt, die in den ausgewählten Wochentagen stattfinden,
+         * sowie nur die Gruppen, die ausgewählt wurden
+         */
+
+        let tableBody = document.getElementById('table-body'); // Body der Tabelle
+        let sessionContainer = document.getElementById('sessions'); // Container für die Einheiten
+
+        // Resette den Container
+        while (sessionContainer.firstChild) {
+            sessionContainer.removeChild(sessionContainer.firstChild);
+        }
+
+        GROUPS.filteredGroups.forEach((group, index) => {
+            /**
+             * Erstelle ein neues DIV-Element für jede Gruppe und füge es dem Sessions-Container hinzu
+             */
+
+            let color = group.color; // Farbe der Gruppe
+            let contrastColor = group.contrastColor; // Kontrastfarbe für den Text
+            let coach = group.coach; // Name des/der Trainer(s)
+
+            // Füge die Einheiten der Gruppe hinzu
+            group.sessions.forEach(session => {
+                let cellIndex = session.cellIndex;
+                if (cellIndex === -1) return; // Wenn der cellIndex der einheit -1 ist, fahre mit der nächsten Einheit fort
+
+                /**
+                 * Bestimme Position und Größe für die Einheit
+                 */
+                let row = tableBody.rows[session.startTimeInMinutes / 15 - GROUPS.startIndex]; // Zeile für die Einheit
+                let cell = row.cells[cellIndex + 1]; // Zelle für die Einheit
+                let top = cell.offsetTop; // Position der Zelle
+                let left = cell.offsetLeft; // Position der Zelle
+
+                /**
+                 * Bestimme Größen und Einheiten für die Einheit
+                 */
+                let width = (cell.offsetWidth / (Object.keys(session.conflicts).length + 1)).toString(); // Breite der Einheit
+                let border = width > 32 ? 6 : 3; // Rand der Einheit
+                let margin = width > 32 ? 4 : 2; // Abstand der Einheit
+                width = parseInt(width) - border - margin * 2 + 'px'; // Korrigiere die Breite der Einheit
+
+                /**
+                 * Setze den Style für die Einheit
+                 */
+                let sessionDiv = document.createElement('div'); // Erstelle ein neues DIV-Element für die Einheit
+                sessionDiv.className = 'session'; // Setze die Klasse für weitere Styling-Optionen
+                sessionDiv.style.top = top + 18 + margin + 'px'; // Position
+                sessionDiv.style.left = left + 18 + session.conflictIndex * cell.offsetWidth / (Object.keys(session.conflicts).length + 1) + margin + 'px'; // Position
+                sessionDiv.style.width = width; // Breite
+                sessionDiv.style.height = cell.offsetHeight * session.duration / 15 - margin * 2 + 'px'; // Höhe
+                sessionDiv.style.color = contrastColor; // Textfarbe
+                sessionDiv.style.backgroundColor = color; // Hintergrundfarbe
+                sessionDiv.style.borderLeft = border + 'px solid ' + contrastColor; // Linke Linie
+                sessionDiv.style.boxShadow = '2px 2px 2px ' + color; // Schattenfarbe
+
+                /**
+                 * Erstelle den Text für die Einheit
+                 */
+                let firstLine = document.createElement('div'); // Erste Zeile
+                firstLine.innerText = group.name; // Gruppenname
+                firstLine.style.fontWeight = 'bold';
+                sessionDiv.appendChild(firstLine);
+
+                let secondLine = document.createElement('div'); // Zweite Zeile
+                secondLine.innerText = coach; // Name des/der Trainer(s)
+                secondLine.style.marginBottom = '12px';
+                secondLine.style.fontWeight = 'normal';
+                sessionDiv.appendChild(secondLine);
+
+                let thirdLine = document.createElement('div'); // Dritte Zeile
+                thirdLine.innerText = session.start + ' - ' + session.end; // Start- und Endzeit
+                thirdLine.style.fontWeight = 'bold';
+                sessionDiv.appendChild(thirdLine);
+
+                /**
+                 * Füge die Einheit dem Sessions-Container hinzu
+                 */
+                sessionContainer.appendChild(sessionDiv);
+            });
+        });
+
+    }
+
+    function addDay(day) {
+        /**
+         * Füge einen Tag hinzu
+         * @param day - Tag, der hinzugefügt werden soll
+         */
+
+        function getDayIndex(day) {
+            /**
+             * Gibt den Index des Wochentags zurück
+             * @param day - Wochentag
+             * @returns {number} - Index des Wochentags
+             */
+            if (day === DAY_OF_THE_WEEK["6"]) return 6;
+            if (day === DAY_OF_THE_WEEK["5"]) return 5;
+            if (day === DAY_OF_THE_WEEK["4"]) return 4;
+            if (day === DAY_OF_THE_WEEK["3"]) return 3;
+            if (day === DAY_OF_THE_WEEK["2"]) return 2;
+            if (day === DAY_OF_THE_WEEK["1"]) return 1;
+            if (day === DAY_OF_THE_WEEK["0"]) return 0;
+            return -1;
+        }
+
+        if (!FILTERED_DAYS.includes(day)) {
+            FILTERED_DAYS.push(day);
+            FILTERED_DAYS.sort((a, b) => {
+                let aIndex = getDayIndex(a);
+                let bIndex = getDayIndex(b);
+                return aIndex - bIndex;
+            });
+            createMobileCalender();
+            createTable();
+            addGroupsToTable();
+        }
+    }
+
+    function removeDay(day) {
+        /**
+         * Entferne einen Tag
+         * @param day - Tag, der entfernt werden soll
+         */
+        let index = FILTERED_DAYS.indexOf(day);
+        if (index > -1) {
+            FILTERED_DAYS.splice(index, 1);
+            createMobileCalender();
+            createTable();
+            addGroupsToTable();
+        }
+    }
+
+    function updateFromLocalStorage(data) {
+        /**
+         * Funktion zum Aktualisieren der Tabelle basierend auf den im LocalStorage gespeicherten Daten
+         */
+        if (data) {
+            // Daten in Zeilen aufteilen
+            let rows = data.split('\n');
+
+            // Variable um die Gruppen zu speichern
+            let groups = [];
+
+            // Erstelle eine Liste der Gruppen
+            for (let i = 1; i < rows.length; i++) {
+                let cells = rows[i].split('\t');
+                let name = cells[0];
+                if(cells.length < 3) continue;
+                let numSessions = parseInt(cells[1]);
+                let coach = cells[2];
+                let sessions = [];
+                for (let j = 3; j < cells.length; j++) {
+                    let cell = cells[j].toString().trim();
+                    if (cell === '' || cell === '/') {
+                        continue;
+                    }
+                    let time = cell.split('-');
+                    let startTime = time[0].trim();
+                    let startTimeInMinutes = parseInt(startTime.split(':')[0]) * 60 + parseInt(startTime.split(':')[1]);
+                    let endTime = time[1].trim();
+                    let endTimeInMinutes = parseInt(endTime.split(':')[0]) * 60 + parseInt(endTime.split(':')[1]);
+                    let start = TIME[startTimeInMinutes];
+                    let end = TIME[endTimeInMinutes];
+
+                    let day = DAY_OF_THE_WEEK[j - 3];
+
+                    sessions.push(new Session(day, start, end));
+                }
+                if(sessions.length > 0) groups.push(new Group(name, numSessions, coach, sessions));
+            }
+
+            for (let i = 0; i < groups.length; i++) {
+                let alreadyAdded = false;
+                for (let j = 0; j < GROUPS.groups.length; j++) {
+                    if (GROUPS.groups[j].name === groups[i].name) {
+                        alreadyAdded = true;
+                        break;
+                    }
+                }
+                if (!alreadyAdded) {
+                    GROUPS.addGroup(groups[i]);
+                }
+            }
+            createTable();
+            createMobileCalender();
+            createPopup();
+            addGroupsToTable();
+        } else {
+            console.error('Daten im LocalStorage nicht gefunden.');
+        }
+    }
+
+    function waitForDataAndLoad() {
+        /**
+         * Funktion zum Überwachen des LocalStorage auf neue Daten und Aktualisieren der Tabelle,
+         * sobald neue Daten im LocalStorage gefunden werden, wird die Tabelle aktualisiert
+         */
+
+            // Name der Daten im LocalStorage
+        let names = {
+                0: 'wettkampfgruppen',
+                1: 'wsgFitUndFun',
+                2: 'masters'
+            };
+
+        // Überwachungsintervall in Millisekunden
+        let interval = 100;
+
+        // Überprüfe ob die Daten schon ohne Wartezeit im LocalStorage vorhanden sind
+        for(let i = 0; i < Object.keys(names).length; i++) {
+            let name = names[i];
+            let data = localStorage.getItem(name);
+            if(data) {
+                updateFromLocalStorage(data);
+            }
+        }
+
+        for (let i = 0; i < Object.keys(names).length; i++) {
+            let name = names[i];
+            let data = localStorage.getItem(name);
+
+            // Überprüfen, ob die Daten im LocalStorage verfügbar sind
+            let waitForData = setInterval(function () {
+                data = localStorage.getItem(name);
+                if (data) {
+                    // Daten im LocalStorage gefunden, also stoppe die Überwachung und lade die Tabelle
+                    clearInterval(waitForData);
+                    updateFromLocalStorage(data);
+                }
+            }, interval);
+
+            // Aktualisierungsintervall für die regelmäßige Überprüfung des LocalStorage und Aktualisierung der Tabelle
+            interval = 2000;
+            setInterval(function () {
+                if (data !== localStorage.getItem(name)) {
+                    console.log('Neue Daten gefunden.');
+                    data = localStorage.getItem(name);
+                    updateFromLocalStorage(data);
+                }
+            }, interval);
+        }
+    }
+
+    function createMobileCalender() {
+        /**
+         * Erstelle den mobilen Kalender
+         */
+
+            // Resette den Container
+        let mobileContainer = document.getElementById('mobile');
+        while (mobileContainer.firstChild) {
+            mobileContainer.removeChild(mobileContainer.firstChild);
+        }
+        // Wenn keine Einheiten vorhanden sind, breche ab
+        if (GROUPS.filteredSessions.length === 0) {
+            return;
+        }
+
+        let fontSize = 12;
+        let leftSide = '10%';
+        let rightSide = '90%';
+
+        function addDayOfSession(day) {
+            /**
+             * Füge einen Tag hinzu
+             * @param day - Tag, der hinzugefügt werden soll
+             */
+            let outerDiv = document.createElement('div');
+            let spacerDiv = document.createElement('div');
+            let dayDiv = document.createElement('div');
+
+            outerDiv.style.gap = '16px';
+            outerDiv.style.padding = '8px';
+            outerDiv.style.display = 'flex';
+            outerDiv.style.justifyContent = 'space-between';
+            if(day.toString() !== DAY_OF_THE_WEEK["0"].toString()) outerDiv.style.marginTop = '16px';
+
+            spacerDiv.style.width = leftSide;
+
+            dayDiv.style.width = rightSide;
+            dayDiv.style.textAlign = 'left';
+            dayDiv.innerText = day;
+            dayDiv.style.fontWeight = 'bold';
+            dayDiv.style.fontSize = fontSize + 4 + 'px';
+
+            outerDiv.appendChild(spacerDiv);
+            outerDiv.appendChild(dayDiv);
+            mobileContainer.appendChild(outerDiv);
+        }
+
+        let currentDay = null;
+
+        for (let i = 0; i < GROUPS.filteredSessions.length; i++) {
+            /**
+             * Füge jede Session zu dem mobilen Kalender hinzu
+             */
+
+            if (i === 0 || currentDay !== GROUPS.filteredSessions[i].day) {
+                currentDay = GROUPS.filteredSessions[i].day;
+                addDayOfSession(currentDay);
+            }
+
+            let session = GROUPS.filteredSessions[i];
+            // Finde die Gruppe zu der die Einheit gehört
+            let group = GROUPS.filteredGroups.find(group => group.sessions.includes(session));
+            let color = group.color;
+            let contrastColor = group.contrastColor;
+            let coach = group.coach;
+
+            let outerContainer = document.createElement('div');
+            outerContainer.style.padding = '8px';
+            outerContainer.style.gap = '16px';
+            outerContainer.style.display = 'flex';
+            outerContainer.style.justifyContent = 'space-between';
+
+            /**
+             * Setze den Style für die Einheit
+             */
+            let sessionDiv = document.createElement('div'); // Erstelle ein neues DIV-Element für die Einheit
+            sessionDiv.className = 'mobile-session'; // Setze die Klasse für weitere Styling-Optionen
+            sessionDiv.style.width = rightSide; // Breite
+            sessionDiv.style.height = '64px'; // Höhe
+            sessionDiv.style.color = contrastColor; // Textfarbe
+            sessionDiv.style.backgroundColor = color; // Hintergrundfarbe
+            sessionDiv.style.borderLeft = '6px solid ' + contrastColor; // Linke Linie
+            sessionDiv.style.boxShadow = '2px 2px 2px ' + color; // Schattenfarbe
+
+            /**
+             * Erstelle den Text für die Einheit
+             */
+            let firstLine = document.createElement('div'); // Erste Zeile
+            firstLine.innerText = group.name; // Gruppenname
+            firstLine.style.fontWeight = 'bold';
+            firstLine.style.marginBottom = '12px';
+            sessionDiv.appendChild(firstLine);
+
+            let secondLine = document.createElement('div'); // Zweite Zeile
+            secondLine.innerText = coach; // Name des/der Trainer(s)
+            secondLine.style.fontWeight = 'normal';
+            sessionDiv.appendChild(secondLine);
+
+            /**
+             * Erstelle das Element, dass die Uhrzeit anzeigt
+             */
+            let timeDiv = document.createElement('div');
+            timeDiv.innerText = session.start + ' - ' + session.end; // Start- und Endzeit
+            timeDiv.style.fontWeight = 'bold';
+            timeDiv.style.fontSize = fontSize + 'px';
+            timeDiv.style.textAlign = 'right';
+            timeDiv.style.alignContent = 'center';
+            timeDiv.style.width = leftSide;
+
+            outerContainer.appendChild(timeDiv);
+            outerContainer.appendChild(sessionDiv);
+
+            mobileContainer.appendChild(outerContainer);
+        }
+    }
+
+    document.getElementById('popup-icon').addEventListener('click', function () {
+        let overlayColor = getComputedStyle(document.documentElement).getPropertyValue('--overlay-color');
+        let filterPopup = document.getElementById('popup-content');
+        let filterIcon = document.getElementById('popup-icon');
+        let overlayContainer = document.getElementById('popup-overlay');
+        if (filterPopup.style.visibility === 'visible') {
+            filterIcon.style.transform = 'rotate(0deg)';
+            overlayContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
+            filterPopup.style.visibility = 'hidden';
+            filterPopup.style.opacity = '0';
+        } else {
+            filterIcon.style.transition = 'transform 0.8s';
+            filterIcon.style.transform = 'rotate(90deg)';
+            overlayContainer.style.backgroundColor = overlayColor;
+            filterPopup.style.visibility = 'visible';
+            filterPopup.style.opacity = '1';
+        }
+    });
+
+    document.getElementById('popup-close').addEventListener('click', function () {
+        let filterPopup = document.getElementById('popup-content');
+        let filterIcon = document.getElementById('popup-icon');
+        let overlayContainer = document.getElementById('popup-overlay');
+        if (!(filterPopup.style.visibility === 'hidden')) {
+            filterIcon.style.transform = 'rotate(0deg)';
+            overlayContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
+            filterPopup.style.visibility = 'hidden';
+            filterPopup.style.opacity = '0';
+        }
+    });
+
+    let GROUPS = new Groups(); // Erstelle eine neue Gruppen-Instanz
+    let FILTERED_DAYS = [
+        /**
+         * Array mit den Wochentagen, die im Kalender angezeigt werden
+         */
+        DAY_OF_THE_WEEK["0"],
+        DAY_OF_THE_WEEK["1"],
+        DAY_OF_THE_WEEK["2"],
+        DAY_OF_THE_WEEK["3"],
+        DAY_OF_THE_WEEK["4"]
+    ];
+
+    waitForDataAndLoad(); // Warte auf die Daten und lade diese in die Tabelle
+
+    // Beispielaufruf mit Dummy-Daten
+    let dummyGroups = [
+        new Group('Gruppe A', 3, 'Trainer A', [
+            new Session(DAY_OF_THE_WEEK["0"], '08:00', '10:00'),
+            new Session(DAY_OF_THE_WEEK["2"], '09:00', '11:00'),
+            new Session(DAY_OF_THE_WEEK["0"], '10:00', '12:00')
+        ]),
+        new Group('Gruppe B', 2, 'Trainer B', [
+            new Session(DAY_OF_THE_WEEK["0"], '08:30', '10:30'),
+            new Session(DAY_OF_THE_WEEK["0"], '09:30', '11:30')
+        ]),
+        new Group('Gruppe C', 1, 'Trainer C', [
+            new Session(DAY_OF_THE_WEEK["0"], '12:00', '14:00')
+        ]),
+        new Group('Gruppe D', 2, 'Trainer D', [
+            new Session(DAY_OF_THE_WEEK["0"], '14:00', '16:00'),
+            new Session(DAY_OF_THE_WEEK["0"], '15:00', '17:00')
+        ])
+    ];
+
+</script>
+
+</body>
+</html>
