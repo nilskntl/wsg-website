@@ -20,8 +20,23 @@
             max-width: 100%;
             font-family: "Questrial", sans-serif;
             background-color: var(--primary-background);
-            padding: 32px 10px 10px 10px;
+            padding: 16px 8px 8px 8px;
             cursor: default;
+        }
+
+        /* Verberge den Scrollbalken auf der rechten Seite */
+        ::-webkit-scrollbar {
+            width: 0; /* Breite auf null setzen */
+        }
+
+        /* Optional: Verberge den Scrollbalken in anderen Browsern */
+        html {
+            scrollbar-width: none;
+        }
+
+        /* Optional: Mache die Scrollbalken transparent */
+        html {
+            scrollbar-color: transparent transparent;
         }
 
         /* Allgemeine Formatierungen für Tabelle */
@@ -111,7 +126,6 @@
             padding: 16px 8px 8px 8px;
         }
 
-
         /* Definition der Breiten der Spalten */
         .col1 {
             width: 8%;
@@ -191,7 +205,7 @@
             color: var(--primary-color);
         }
 
-        /* Formatierungen für die Dropdown Liste (Desktop) */
+        /* Formatierungen für die Dropdown Liste */
         .dropdown-list {
             background-color: var(--primary-color);
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
@@ -200,51 +214,23 @@
             top: 86px;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.5s linear, visibility 0.5s linear;
+            transition: opacity 0.5s linear, visibility 0.5s linear, height 0.5s ease;
         }
 
-        /* Formatierungen für ein Element in der Dropdown Liste (Desktop) */
+        .expanded {
+            display: block;
+            height: auto;
+        }
+
+        /* Formatierungen für ein Element in der Dropdown Liste */
         .dropdown-list__item {
             padding: 16px 64px 16px 16px;
             cursor: pointer;
             transition: background-color 0.5s;
         }
 
-        /* Formatierungen für ein Element in der Dropdown Liste beim Hovern (Desktop) */
+        /* Formatierungen für ein Element in der Dropdown Liste beim Hovern */
         .dropdown-list__item:hover {
-            background-color: var(--secondary-color);
-        }
-
-        /* Formatierungen für die Dropdown Liste (Mobil) */
-        .popup {
-            display: none;
-            position: relative;
-            top: 8px;
-            left: 0;
-            background-color: var(--primary-color);
-            border-radius: var(--border-radius);
-            box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
-            align-content: center;
-            justify-content: center;
-            align-items: center;
-            padding: 0;
-            visibility: hidden;
-            opacity: 0;
-            margin-bottom: 16px;
-            transition: opacity 0.5s linear, visibility 0.5s linear;
-        }
-
-        /* Formatierungen für in Element in der Dropdown Liste beim Hovern (Mobil) */
-        .popup__item {
-            padding: 16px 64px 16px 16px;
-            cursor: pointer;
-            transition: background-color 0.5s;
-            text-align: left;
-            color: var(--contrast-color);
-        }
-
-        /* Formatierungen für ein Element in der Dropdown Liste beim Hovern (Mobil) */
-        .popup__item:hover {
             background-color: var(--secondary-color);
         }
 
@@ -260,8 +246,19 @@
             border-bottom-right-radius: var(--border-radius);
         }
 
+        #last-updated {
+            font-size: 14px;
+            text-align: right;
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+
         /* Einstellungen für Handy */
         @media only screen and (max-width: 600px) {
+            body {
+                padding: 8px 8px 8px 8px;
+            }
+
             .dropdowns {
                 flex-direction: column;
                 gap: 0;
@@ -283,7 +280,11 @@
             }
 
             .dropdown-list {
-                top: 48px;
+                display: none;
+                position: relative;
+                top: 8px;
+                left: 0;
+                margin-bottom: 16px;
             }
 
             table {
@@ -328,17 +329,10 @@
                 <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
         </div>
-        <!-- Liste der Geschlechter (Desktop) -->
+        <!-- Liste der Geschlechter -->
         <div class="dropdown-list" id="dropdown-list__gender">
             <div class="dropdown-list__item" id="dropdown-list__item__female" data-radius="top">Weiblich</div>
             <div class="dropdown-list__item" id="dropdown-list__item__male" data-radius="bottom">Männlich</div>
-        </div>
-        <!-- Liste der Geschlechter (Mobil) -->
-        <div class="popup-overlay" id="popup-overlay__gender">
-            <div class="popup" id="popup__gender">
-                <div class="popup__item" data-radius="top">Weiblich</div>
-                <div class="popup__item" data-radius="bottom">Männlich</div>
-            </div>
         </div>
     </div>
     <!-- Dropdowns für Schwimmstil -->
@@ -352,23 +346,13 @@
                 <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
         </div>
-        <!-- Liste der Schwimmstile (Desktop) -->
+        <!-- Liste der Schwimmstile -->
         <div class="dropdown-list" id="dropdown-list__stroke">
             <div class="dropdown-list__item" id="dropdown-list__item__butterfly" data-radius="top">Schmetterling</div>
             <div class="dropdown-list__item" id="dropdown-list__item__backstroke">Rücken</div>
             <div class="dropdown-list__item" id="dropdown-list__item__breaststroke">Brust</div>
             <div class="dropdown-list__item" id="dropdown-list__item__freestyle">Freistil</div>
             <div class="dropdown-list__item" id="dropdown-list__item__individual" data-radius="bottom">Lagen</div>
-        </div>
-        <!-- Liste der Schwimmstile (Mobil) -->
-        <div class="popup-overlay" id="popup-overlay__stroke">
-            <div class="popup" id="popup__stroke">
-                <div class="popup__item" data-radius="top">Freistil</div>
-                <div class="popup__item">Brust</div>
-                <div class="popup__item">Schmetterling</div>
-                <div class="popup__item">Rücken</div>
-                <div class="popup__item" data-radius="bottom">Lagen</div>
-            </div>
         </div>
     </div>
     <!-- Dropdowns für Bahnlänge -->
@@ -382,22 +366,19 @@
                 <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
         </div>
-        <!-- Liste der Bahnlängen (Desktop) -->
+        <!-- Liste der Bahnlängen -->
         <div class="dropdown-list" id="dropdown-list__lane">
             <div class="dropdown-list__item" id="dropdown-list__item__short" data-radius="top">Kurzbahn</div>
             <div class="dropdown-list__item" id="dropdown-list__item__long" data-radius="bottom">Langbahn</div>
-        </div>
-        <!-- Liste der Bahnlängen (Mobil) -->
-        <div class="popup-overlay" id="popup-overlay__lane">
-            <div class="popup" id="popup__lane">
-                <div class="popup__item" data-radius="top">Kurzbahn</div>
-                <div class="popup__item" data-radius="bottom">Langbahn</div>
-            </div>
         </div>
     </div>
 </div>
 <!-- Container, in dem per JavaScript die Bestenlisten eingefügt werden -->
 <div id="leaderboards"></div>
+<!-- Text, der anzeigt wann die Liste zuletzt aktualisiert wurde -->
+<div id="last-updated">
+    Zuletzt aktualisiert am: <span id="current-date"></span>
+</div>
 
 <!-- Skript zum Importieren von Daten aus Google Sheets -->
 <!-- Das Skript enthält Klassen für Personen, Ergebnisse, Disziplinen und Bestenlisten -->
@@ -640,11 +621,11 @@
                 let year = document.createElement('td'); // Erstelle eine Zelle für das Jahr
 
                 // Setze die obere linke Ecke der ersten Zelle auf gerundet
-                let borderRadius = document.documentElement.style.getPropertyValue('--border-radius');
-                rank.style.borderTopLeftRadius = borderRadius;
-                rank.style.borderBottomLeftRadius = borderRadius;
-                year.style.borderTopRightRadius = borderRadius;
-                year.style.borderBottomRightRadius = borderRadius;
+                let borderRadius = parseInt(document.documentElement.style.getPropertyValue('--border-radius')) * 2;
+                rank.style.borderTopLeftRadius = borderRadius + 'px';
+                rank.style.borderBottomLeftRadius = borderRadius + 'px';
+                year.style.borderTopRightRadius = borderRadius + 'px';
+                year.style.borderBottomRightRadius = borderRadius + 'px';
 
                 rank.textContent = result.ranking; // Setze den Text der Zelle auf den Rang
                 row.append(rank); // Füge die Zelle in die Zeile ein
@@ -832,6 +813,11 @@
                 // Verberge die Dropdown-Liste
                 dropdownItem.parentElement.style.visibility = 'hidden';
                 dropdownItem.parentElement.style.opacity = '0';
+                if(window.innerWidth <= mobileSize) {
+                    setTimeout(() => {
+                        dropdownItem.parentElement.style.display = 'none';
+                    }, 500);
+                }
                 // Lade die Bestenliste in die Tabelle
                 loadLeaderboardsIntoTable(LEADERBOARDS.filterLeaderboards(FILTER));
             });
@@ -850,24 +836,22 @@
 
                 // Überprüfe, ob der User auf dem Handy ist
                 if (window.innerWidth <= mobileSize) {
-                    let id = dropdownList.id.slice(13);
-                    // Finde das zugehörige Popup overlay
-                    let popupOverlay = document.getElementById('popup' + id);
-                    // Mache das Popup-Overlay sichtbar
-                    if (popupOverlay.style.visibility === 'visible') {
-                        popupOverlay.style.visibility = 'hidden';
-                        popupOverlay.style.opacity = '0';
+                    if (dropdownList.style.visibility === 'visible') {
+                        dropdownList.style.visibility = 'hidden';
+                        dropdownList.style.opacity = '0';
+                        dropdownList.classList.toggle('expanded');
                         setTimeout(() => {
-                            popupOverlay.style.display = 'none';
+                            dropdownList.style.display = 'none';
                         }, 500);
                     } else {
-                        popupOverlay.style.display = 'block';
-                        popupOverlay.style.visibility = 'hidden';
-                        popupOverlay.style.opacity = '0';
+                        dropdownList.style.display = 'block';
+                        dropdownList.style.visibility = 'hidden';
+                        dropdownList.style.opacity = '0';
                         // Warte 10ms, um den Browser Zeit zu geben, das Display-Attribut zu setzen
                         setTimeout(() => {
-                            popupOverlay.style.visibility = 'visible';
-                            popupOverlay.style.opacity = '1';
+                            dropdownList.style.visibility = 'visible';
+                            dropdownList.style.opacity = '1';
+                            dropdownList.classList.toggle('expanded');
                         }, 10);
                     }
                 }
@@ -904,19 +888,6 @@
             });
         });
 
-        /*
-        // Event Listener für jedes 'dropdown' ELement
-        document.querySelectorAll('.dropdown').forEach(item => {
-            item.addEventListener('mouseleave', event => {
-                if (window.innerWidth > mobileSize) {
-                    let dropdownList = item.querySelector('.dropdown-list');
-                    dropdownList.style.visibility = 'hidden';
-                    dropdownList.style.opacity = '0';
-                }
-            });
-        });
-         */
-
         // Event Listener für Klicks auf dem Body
         document.body.addEventListener('click', event => {
             // Wenn der Klick nicht auf einem Dropdown-List-Element oder Dropdown-Select war, verberge alle Dropdown-Listen
@@ -924,36 +895,14 @@
                 document.querySelectorAll('.dropdown-list').forEach(list => {
                     list.style.visibility = 'hidden';
                     list.style.opacity = '0';
+                    if(window.innerWidth < mobileSize) {
+                        setTimeout(() => {
+                            dropdownItem.parentElement.style.display = 'none';
+                        }, 500);
+                    }
                 });
             }
         });
-
-        // EVent Listener für jedes Popup Item
-        document.querySelectorAll('.popup__item').forEach(item => {
-            item.addEventListener('click', event => {
-                let popupItem = event.target;
-                let text = popupItem.textContent;
-                let id = popupItem.parentElement.id.slice(5);
-                let popup = document.getElementById('popup' + id);
-                let dropdownSelect = document.getElementById('dropdown-select' + id);
-                let svg = dropdownSelect.querySelector('svg');
-                // Drehe das Icon um 180 Grad
-                svg.classList.toggle('rotated');
-                // Setze den Text des dropdown-select Elements auf den ausgewählten Wert
-                dropdownSelect.querySelector('span').textContent = text;
-                // Verberge das popup-overlay
-                popup.style.visibility = 'hidden';
-                popup.style.opacity = '0';
-                // Warte 500ms, um das popup-overlay zu verbergen
-                setTimeout(() => {
-                    popup.style.display = 'none';
-                }, 500);
-                // Lade die Bestenliste in die Tabelle
-                functionUseFilter(text);
-                loadLeaderboardsIntoTable(LEADERBOARDS.filterLeaderboards(FILTER));
-            });
-        });
-
     }
 
     function waitForDataAndLoad() {
@@ -1177,7 +1126,17 @@
             .catch(error => console.error('Fehler beim Laden und Speichern der TSV-Daten:', error));
     }
 
+    function setLastUpdated() {
+        let currentDateElement = document.getElementById("current-date");
+        currentDateElement.innerHTML = new Date().toLocaleDateString('de-DE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    }
+
     saveDataToLocalStorage(); // Rufe die Funktion zum Speichern der Daten im LocalStorage auf
+    setLastUpdated();
 
 </script>
 </body>
